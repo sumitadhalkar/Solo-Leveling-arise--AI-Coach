@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import './App.css';
 import GameModeSelector from './components/GameModeSelector';
 import RosterInput from './components/RosterInput';
@@ -18,6 +19,7 @@ export default function App() {
   async function handleAnalyze() {
     setLoading(true);
     setError(null);
+    setStrategy(null);
     try {
       const result = await getStrategy({
         game_mode: gameMode,
@@ -37,12 +39,18 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Solo Leveling: ARISE</h1>
-        <span className="subtitle">AI Coach — personalized strategy for your account</span>
+        <h1>Solo Leveling: Arise</h1>
+        <span className="subtitle">AI Strategy Coach</span>
+        <span className="header-rank">S-Rank Intelligence</span>
       </header>
 
       <div className="app-body">
-        <aside className="sidebar">
+        <motion.aside
+          className="sidebar"
+          initial={{ x: -20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+        >
           <GameModeSelector
             gameMode={gameMode} setGameMode={setGameMode}
             boss={boss} setBoss={setBoss}
@@ -52,29 +60,75 @@ export default function App() {
             battlePower={battlePower} setBattlePower={setBattlePower}
             jinwooPower={jinwooPower} setJinwooPower={setJinwooPower}
           />
-          <button
+          <motion.button
             className="analyze-btn"
             onClick={handleAnalyze}
             disabled={loading || hunters.length === 0}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            {loading ? 'Analyzing...' : 'Get Strategy'}
-          </button>
-          {error && <div className="error-msg">{error}</div>}
-        </aside>
+            {loading ? 'Analyzing...' : 'Analyze Roster'}
+          </motion.button>
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                className="error-msg"
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+              >
+                {error}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.aside>
 
         <main className="main-content">
-          {strategy ? (
-            <StrategyOutput strategy={strategy} />
-          ) : (
-            <div className="empty-state">
-              <div className="glyph">⚔</div>
-              <p>
-                Add hunters from your roster, select a game mode and boss,
-                then hit <strong style={{ color: 'var(--accent-gold)' }}>Get Strategy</strong> for
-                personalized advice tailored to your account.
-              </p>
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {loading && (
+              <motion.div
+                key="loading"
+                className="empty-state"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <div className="empty-glyph">◈</div>
+                <div className="empty-title">Consulting the Shadows</div>
+                <div className="empty-desc">
+                  Searching arise.tools, Reddit, and the Fandom Wiki for the latest strategies…
+                </div>
+              </motion.div>
+            )}
+            {!loading && strategy && (
+              <motion.div
+                key="strategy"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <StrategyOutput strategy={strategy} gameMode={gameMode} boss={boss} />
+              </motion.div>
+            )}
+            {!loading && !strategy && (
+              <motion.div
+                key="empty"
+                className="empty-state"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <div className="empty-glyph">⚔</div>
+                <div className="empty-title">Awaiting Your Roster</div>
+                <div className="empty-desc">
+                  Add hunters from your account, choose a game mode and boss, then hit{' '}
+                  <strong style={{ color: 'var(--gold)' }}>Analyze Roster</strong> for
+                  a strategy built around your exact lineup.
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </main>
       </div>
     </div>

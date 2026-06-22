@@ -1,42 +1,52 @@
+import { motion } from 'framer-motion';
+
 const MODES = {
-  'Workshop of Brilliant Light': ['Vulcan', 'Ice Elf King', 'Shadow Monarch', 'Steel-Fanged Lycan'],
-  'Battlefield of Time':         ['Ant King', 'Iron Body Monku', 'Architect'],
-  'Guild Boss':                  ['Thomas Andre', 'Christopher Reed', 'Jonas'],
-  'Encore Missions':             [],
-  'Simulation Gate':             [],
+  'Workshop of Brilliant Light': { icon: '⚡', short: 'Workshop',    bosses: ['Vulcan', 'Ice Elf King', 'Shadow Monarch', 'Steel-Fanged Lycan'] },
+  'Battlefield of Time':          { icon: '⏳', short: 'Battlefield', bosses: ['Ant King', 'Iron Body Monku', 'Architect'] },
+  'Guild Boss':                   { icon: '🏛', short: 'Guild Boss',  bosses: ['Thomas Andre', 'Christopher Reed', 'Jonas'] },
+  'Encore Missions':              { icon: '🔁', short: 'Encore',      bosses: [] },
+  'Simulation Gate':              { icon: '🌀', short: 'Simulation',  bosses: [] },
 };
 
 export default function GameModeSelector({ gameMode, setGameMode, boss, setBoss }) {
-  const bosses = MODES[gameMode] || [];
+  const bosses = MODES[gameMode]?.bosses || [];
 
-  function handleModeChange(e) {
-    const mode = e.target.value;
+  function handleMode(mode) {
     setGameMode(mode);
-    const newBosses = MODES[mode] || [];
+    const newBosses = MODES[mode]?.bosses || [];
     setBoss(newBosses[0] || '');
   }
 
   return (
     <div className="card">
       <div className="card-title">Game Mode</div>
-
-      <div className="field">
-        <label>Mode</label>
-        <select value={gameMode} onChange={handleModeChange}>
-          {Object.keys(MODES).map((m) => (
-            <option key={m} value={m}>{m}</option>
-          ))}
-        </select>
+      <div className="mode-grid">
+        {Object.entries(MODES).map(([mode, { icon, short }]) => (
+          <motion.button
+            key={mode}
+            className={`mode-tile${gameMode === mode ? ' active' : ''}`}
+            onClick={() => handleMode(mode)}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <span className="mode-tile-icon">{icon}</span>
+            <span className="mode-tile-name">{short}</span>
+          </motion.button>
+        ))}
       </div>
-
       {bosses.length > 0 && (
-        <div className="field">
-          <label>Boss</label>
-          <select value={boss} onChange={(e) => setBoss(e.target.value)}>
-            {bosses.map((b) => (
-              <option key={b} value={b}>{b}</option>
-            ))}
-          </select>
+        <div className="boss-chips">
+          {bosses.map((b) => (
+            <motion.button
+              key={b}
+              className={`boss-chip${boss === b ? ' active' : ''}`}
+              onClick={() => setBoss(b)}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+            >
+              {b}
+            </motion.button>
+          ))}
         </div>
       )}
     </div>
