@@ -85,25 +85,32 @@ then return a JSON object with exactly these keys:
 
 async def run_coach_pipeline(request: CoachRequest) -> dict:
     client = _get_next_client()
-
-    response = client.models.generate_content(
-        model=settings.LLM_MODEL,
-        contents=_build_prompt(request),
-        config=types.GenerateContentConfig(
-            system_instruction=_SYSTEM_PROMPT,
-            tools=[types.Tool(google_search=types.GoogleSearch())],
-        ),
+    prompt = _build_prompt(request)
+    config = types.GenerateContentConfig(
+        system_instruction=_SYSTEM_PROMPT,
+        tools=[types.Tool(google_search=types.GoogleSearch())],
     )
 
-    raw = response.text.strip()
+    models_to_try = [settings.LLM_MODEL, "gemini-2.0-flash"]
+    last_error = None
 
-    if raw.startswith("```"):
-        raw = raw.split("```")[1]
-        if raw.startswith("json"):
-            raw = raw[4:]
-        raw = raw.strip()
+    for model in models_to_try:
+        try:
+            response = client.models.generate_content(
+                model=model, contents=prompt, config=config,
+            )
+            raw = response.text.strip()
+            if raw.startswith("```"):
+                raw = raw.split("```")[1]
+                if raw.startswith("json"):
+                    raw = raw[4:]
+                raw = raw.strip()
+            try:
+                return json.loads(raw)
+            except json.JSONDecodeError:
+                return {"raw_response": raw, "parse_error": "LLM did not return valid JSON"}
+        except Exception as e:
+            last_error = e
+            continue
 
-    try:
-        return json.loads(raw)
-    except json.JSONDecodeError:
-        return {"raw_response": raw, "parse_error": "LLM did not return valid JSON"}
+    return {"raw_response": str(last_error), "parse_error": "All models failed"}
