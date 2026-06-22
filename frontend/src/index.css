@@ -1,0 +1,40 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-base:      #07071a;
+  --bg-panel:     #10102a;
+  --bg-card:      #181838;
+  --bg-input:     #1e1e42;
+  --accent-gold:  #c9a227;
+  --accent-blue:  #3a7bd5;
+  --accent-dim:   #2a5aaa;
+  --text-primary: #e8e8f0;
+  --text-secondary: #8888aa;
+  --text-muted:   #4a4a6a;
+  --border:       #2a2a50;
+  --danger:       #e05555;
+  --success:      #44cc88;
+  --font-mono:    'Courier New', monospace;
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  font-family: inherit;
+}
+
+input, select {
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+}
