@@ -3,10 +3,10 @@
 :root {
   --void:         #06060f;
   --base:         #0b0b1e;
-  --panel:        #0f0f26;
-  --card:         #161630;
-  --card-hover:   #1c1c3c;
-  --input-bg:     #11112a;
+  --panel:        rgba(15, 15, 38, 0.78);
+  --card:         rgba(22, 22, 48, 0.70);
+  --card-hover:   rgba(28, 28, 60, 0.76);
+  --input-bg:     rgba(17, 17, 42, 0.82);
 
   --gold:         #c9a227;
   --gold-light:   #e8c04a;

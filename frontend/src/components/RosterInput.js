@@ -1,66 +1,148 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { saveRoster } from '../services/memory';
 
-const KNOWN_HUNTERS = [
-  'Cha Hae-In', 'Alicia', 'Min Byung-Gu', 'Go Gunhee', 'Baek Yoonho',
-  'Emma', 'Lim Tae-Gyu', 'Choi Jong-In', 'Woo Jinchul', 'Sung Jin-Woo',
-  'Park Heejin', 'Lee Joohee', 'Hwang Dongsuk',
-];
-
+// ── Complete hunter roster (June 2026) ──────────────────────────────────────
 const HUNTER_ELEMENT = {
-  'Cha Hae-In': 'light', 'Min Byung-Gu': 'light', 'Go Gunhee': 'light',
-  'Alicia': 'water', 'Emma': 'water', 'Park Heejin': 'water',
-  'Lim Tae-Gyu': 'fire', 'Choi Jong-In': 'fire', 'Hwang Dongsuk': 'fire',
-  'Baek Yoonho': 'earth',
-  'Woo Jinchul': 'wind', 'Lee Joohee': 'wind',
-  'Sung Jin-Woo': 'dark',
+  // Light
+  'Cha Hae-In':               'light',
+  'Min Byung-Gu':             'light',
+  'Go Gunhee':                'light',
+  'Thomas Andre':             'light',
+  'Akari':                    'light',
+  'Antoine Martinez':         'light',
+  // Water
+  'Alicia':                   'water',
+  'Emma':                     'water',
+  'Park Heejin':              'water',
+  'Elena Renault':            'water',
+  'Mary Lane':                'water',
+  'Cha Hae-In [Pure Sword]':  'water',
+  // Fire
+  'Lim Tae-Gyu':              'fire',
+  'Choi Jong-In':             'fire',
+  'Hwang Dongsuk':            'fire',
+  'Tawata Kanae':             'fire',
+  'Liu Zhigang':              'fire',
+  'Christopher Reed':         'fire',
+  'Gina':                     'fire',
+  // Earth
+  'Baek Yoonho':              'earth',
+  // Wind
+  'Woo Jinchul':              'wind',
+  'Lee Joohee':               'wind',
+  'Amamiya Mirei':            'wind',
+  'Sugamoto Reggie':          'wind',
+  'Leonard':                  'wind',
+  'Jenna':                    'wind',
+  // Dark
+  'Sung Jin-Woo':             'dark',
+  'Charlotte':                'dark',
+  'Minnie':                   'dark',
+  'Seorin':                   'dark',
+  'Sian Halat':               'dark',
+  'Son Kihoon':               'dark',
 };
+
+const KNOWN_HUNTERS = Object.keys(HUNTER_ELEMENT).sort();
 
 const EL_COLOR = {
-  light: 'var(--el-light)', water: 'var(--el-water)', fire: 'var(--el-fire)',
-  earth: 'var(--el-earth)', wind: 'var(--el-wind)', dark: 'var(--el-dark)',
+  light: 'var(--el-light)',
+  water: 'var(--el-water)',
+  fire:  'var(--el-fire)',
+  earth: 'var(--el-earth)',
+  wind:  'var(--el-wind)',
+  dark:  'var(--el-dark)',
 };
 
-const CHIP_STYLE = {
-  light: { background: 'rgba(245,208,96,0.12)', border: '1px solid rgba(245,208,96,0.35)', color: 'var(--el-light)' },
-  water: { background: 'rgba(80,176,240,0.12)', border: '1px solid rgba(80,176,240,0.35)', color: 'var(--el-water)' },
-  fire:  { background: 'rgba(240,112,80,0.12)', border: '1px solid rgba(240,112,80,0.35)', color: 'var(--el-fire)' },
-  earth: { background: 'rgba(112,192,96,0.12)', border: '1px solid rgba(112,192,96,0.35)', color: 'var(--el-earth)' },
-  wind:  { background: 'rgba(96,216,208,0.12)', border: '1px solid rgba(96,216,208,0.35)', color: 'var(--el-wind)' },
-  dark:  { background: 'rgba(144,96,240,0.12)', border: '1px solid rgba(144,96,240,0.35)', color: 'var(--el-dark)' },
+const EL_BADGE = {
+  light: '☀', water: '💧', fire: '🔥', earth: '🌿', wind: '🌀', dark: '🌑',
 };
 
-const EMPTY = { name: KNOWN_HUNTERS[0], advancement: 0, weapon: 'SSR', weapon_advancement: 0, power: '' };
+const STAGE_OPTS = [
+  { value: 'new',         label: 'New Account' },
+  { value: 'midgame',     label: 'Midgame' },
+  { value: 'endgame',     label: 'Endgame' },
+  { value: 'competitive', label: 'Competitive' },
+];
 
-export default function RosterInput({ hunters, setHunters, battlePower, setBattlePower, jinwooPower, setJinwooPower }) {
+const EMPTY = {
+  name: KNOWN_HUNTERS[0],
+  advancement: 0,
+  weapon: 'SSR',
+  weapon_advancement: 0,
+  power: '',
+};
+
+export default function RosterInput({
+  hunters, setHunters,
+  battlePower, setBattlePower,
+  jinwooPower, setJinwooPower,
+  progressionStage, setProgressionStage,
+}) {
   const [form, setForm] = useState(EMPTY);
 
   function addHunter() {
     if (!form.name) return;
-    setHunters(prev => [...prev, { ...form, power: Number(form.power) || 0 }]);
+    const updated = [...hunters, { ...form, power: Number(form.power) || 0 }];
+    setHunters(updated);
+    saveRoster(updated);
     setForm(EMPTY);
   }
 
-  function removeHunter(i) { setHunters(prev => prev.filter((_, idx) => idx !== i)); }
+  function removeHunter(i) {
+    const updated = hunters.filter((_, idx) => idx !== i);
+    setHunters(updated);
+    saveRoster(updated);
+  }
+
   function set(k, v) { setForm(prev => ({ ...prev, [k]: v })); }
 
   return (
     <div className="card">
       <div className="card-title">Your Roster</div>
 
+      {/* Battle Power + Jin-Woo */}
       <div className="metrics-row">
         <div className="metric-input">
           <label>Battle Power</label>
-          <input type="number" value={battlePower || ''} placeholder="e.g. 1200000"
-            onChange={e => setBattlePower(Number(e.target.value))} />
+          <input
+            type="number"
+            value={battlePower || ''}
+            placeholder="e.g. 1200000"
+            onChange={e => setBattlePower(Number(e.target.value))}
+          />
         </div>
         <div className="metric-input">
           <label>Jin-Woo Power</label>
-          <input type="number" value={jinwooPower || ''} placeholder="e.g. 850000"
-            onChange={e => setJinwooPower(Number(e.target.value))} />
+          <input
+            type="number"
+            value={jinwooPower || ''}
+            placeholder="e.g. 850000"
+            onChange={e => setJinwooPower(Number(e.target.value))}
+          />
         </div>
       </div>
 
+      {/* Progression stage override */}
+      <div className="stage-row">
+        <span className="stage-label">Progression Stage</span>
+        <div className="stage-chips">
+          {STAGE_OPTS.map(({ value, label }) => (
+            <motion.button
+              key={value}
+              className={`stage-chip${progressionStage === value ? ' active' : ''}`}
+              onClick={() => setProgressionStage(value)}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              {label}
+            </motion.button>
+          ))}
+        </div>
+      </div>
+
+      {/* Owned hunters list */}
       <AnimatePresence initial={false}>
         {hunters.length > 0 && (
           <div className="hunter-list">
@@ -77,6 +159,9 @@ export default function RosterInput({ hunters, setHunters, battlePower, setBattl
                   transition={{ duration: 0.18 }}
                 >
                   <span className="hunter-el-dot" style={{ background: EL_COLOR[el] }} />
+                  <span className="hunter-el-badge" style={{ color: EL_COLOR[el] }}>
+                    {EL_BADGE[el]}
+                  </span>
                   <span className="hunter-name">{h.name}</span>
                   <span className="hunter-badge">A{h.advancement}</span>
                   <span className="hunter-badge">{h.weapon}+{h.weapon_advancement}</span>
@@ -91,11 +176,19 @@ export default function RosterInput({ hunters, setHunters, battlePower, setBattl
         )}
       </AnimatePresence>
 
+      {/* Add hunter form */}
       <div className="add-form-label">Add Hunter</div>
       <div className="add-hunter-grid">
-        <select value={form.name} onChange={e => set('name', e.target.value)}
-          style={{ gridColumn: '1 / -1' }}>
-          {KNOWN_HUNTERS.map(n => <option key={n} value={n}>{n}</option>)}
+        <select
+          value={form.name}
+          onChange={e => set('name', e.target.value)}
+          style={{ gridColumn: '1 / -1' }}
+        >
+          {KNOWN_HUNTERS.map(n => (
+            <option key={n} value={n}>
+              {EL_BADGE[HUNTER_ELEMENT[n]]} {n}
+            </option>
+          ))}
         </select>
 
         <select value={form.advancement} onChange={e => set('advancement', Number(e.target.value))}>
@@ -114,8 +207,12 @@ export default function RosterInput({ hunters, setHunters, battlePower, setBattl
           ))}
         </select>
 
-        <input type="number" value={form.power} placeholder="Hunter Power"
-          onChange={e => set('power', e.target.value)} />
+        <input
+          type="number"
+          value={form.power}
+          placeholder="Hunter Power"
+          onChange={e => set('power', e.target.value)}
+        />
 
         <motion.button
           className="add-hunter-btn"
