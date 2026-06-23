@@ -156,3 +156,9 @@ class CoachResponse(BaseModel):
     # ── Feature 5: Team builder extras ──
     missing_roles: List[str] = []
     future_pulls: List[str] = []
+
+
+class FeedbackRequest(BaseModel):
+    rating: Literal[1, -1, 0]   # 1=helpful, -1=wrong, 0=regenerate signal
+    coaching_mode: str
+    regenerated: bool = False

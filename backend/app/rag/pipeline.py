@@ -1,16 +1,285 @@
-import itertools
+import asyncio
+import hashlib
 import json
+import re
+import time
+from collections import Counter, deque
+from datetime import datetime, timezone
+from pathlib import Path
 
+from cachetools import TTLCache
 from google import genai
 from google.genai import types
 
 from app.core.config import settings
 from app.schemas.coach import CoachRequest
 
-_clients: list[genai.Client] = []
-_client_cycle = None
+# ── Response cache — 30-minute TTL, max 500 entries ──────────────────────────
+_response_cache: TTLCache = TTLCache(maxsize=500, ttl=1800)
 
-# ── System prompt ────────────────────────────────────────────────────────────
+# ── Snapshot path (written by background worker) ──────────────────────────────
+_SNAPSHOT_PATH = Path(__file__).parent.parent.parent / "meta_snapshot.json"
+
+# ── API key pool — smart failover, not blind round-robin ─────────────────────
+_client_pool: list[tuple[str, genai.Client]] = []   # [(key_str, client), ...]
+_key_cooldowns: dict[str, float] = {}               # key_str -> monotonic expiry
+
+
+def _init_pool():
+    global _client_pool
+    if _client_pool:
+        return
+    keys = [k for k in [settings.GEMINI_API_KEY, settings.GEMINI_API_KEY_2] if k]
+    if not keys:
+        raise ValueError("No GEMINI_API_KEY configured in .env")
+    _client_pool = [(k, genai.Client(api_key=k)) for k in keys]
+
+
+def _get_best_pair() -> tuple[str, genai.Client]:
+    """Return first key not in cooldown; fall back to soonest-recovering key."""
+    _init_pool()
+    now = time.monotonic()
+    for key, client in _client_pool:
+        if _key_cooldowns.get(key, 0) <= now:
+            return key, client
+    return min(_client_pool, key=lambda p: _key_cooldowns.get(p[0], 0))
+
+
+def _mark_rate_limited(key: str, cooldown_s: int = 60):
+    _key_cooldowns[key] = time.monotonic() + cooldown_s
+    print(f"[ratelimit] Key …{key[-6:]} cooling down for {cooldown_s}s")
+
+
+def _is_rate_limit(e: Exception) -> bool:
+    msg = str(e).lower()
+    return any(kw in msg for kw in (
+        "429", "quota", "rate limit", "resource_exhausted", "rateerror", "too many requests"
+    ))
+
+
+# ── Analytics ─────────────────────────────────────────────────────────────────
+_stats: dict = {
+    "cache_hits":         0,
+    "cache_misses":       0,
+    "search_calls":       0,
+    "no_search_calls":    0,
+    "json_parse_failures": 0,
+    "total_requests":     0,
+    "rate_limit_hits":    0,
+}
+_timing: dict = {
+    "cache_hit": {"ms": 0, "count": 0},
+    "no_search": {"ms": 0, "count": 0},
+    "search":    {"ms": 0, "count": 0},
+}
+_char_asks: Counter = Counter()
+_request_log: deque = deque(maxlen=200)
+_feedback_log: list = []
+_feedback_stats: dict = {"up": 0, "down": 0, "regenerates": 0}
+
+
+def _track_timing(bucket: str, elapsed_ms: int):
+    _timing[bucket]["ms"] += elapsed_ms
+    _timing[bucket]["count"] += 1
+
+
+def _avg_ms(bucket: str) -> str:
+    c = _timing[bucket]["count"]
+    return f"{_timing[bucket]['ms'] // c}ms" if c > 0 else "N/A"
+
+
+def get_stats() -> dict:
+    total = _stats["total_requests"]
+    hits  = _stats["cache_hits"]
+    return {
+        "total_requests":      total,
+        "cache_hits":          hits,
+        "cache_misses":        _stats["cache_misses"],
+        "cache_hit_rate":      f"{hits / total * 100:.1f}%" if total > 0 else "N/A",
+        "search_calls":        _stats["search_calls"],
+        "no_search_calls":     _stats["no_search_calls"],
+        "search_rate":         f"{_stats['search_calls'] / total * 100:.1f}%" if total > 0 else "N/A",
+        "json_parse_failures": _stats["json_parse_failures"],
+        "rate_limit_hits":     _stats["rate_limit_hits"],
+        "latency": {
+            "cache_hit_avg":  _avg_ms("cache_hit"),
+            "no_search_avg":  _avg_ms("no_search"),
+            "search_avg":     _avg_ms("search"),
+            "targets":        {"cache_hit": "<100ms", "no_search": "<4000ms", "search": "<8000ms"},
+        },
+        "feedback": {
+            "helpful":     _feedback_stats["up"],
+            "wrong":       _feedback_stats["down"],
+            "regenerates": _feedback_stats["regenerates"],
+            "quality_rate": (
+                f"{_feedback_stats['up'] / (_feedback_stats['up'] + _feedback_stats['down']) * 100:.1f}%"
+                if (_feedback_stats["up"] + _feedback_stats["down"]) > 0 else "N/A"
+            ),
+        },
+        "top_hunters":  _char_asks.most_common(10),
+        "cache_size":   len(_response_cache),
+        "cache_maxsize": _response_cache.maxsize,
+        "recent_requests": list(_request_log)[-20:],
+    }
+
+
+def record_feedback(rating: int, coaching_mode: str, regenerated: bool = False):
+    if regenerated:
+        _feedback_stats["regenerates"] += 1
+    elif rating > 0:
+        _feedback_stats["up"] += 1
+    elif rating < 0:
+        _feedback_stats["down"] += 1
+    _feedback_log.append({"ts": time.time(), "rating": rating,
+                           "mode": coaching_mode, "regenerated": regenerated})
+    if len(_feedback_log) > 500:
+        _feedback_log.pop(0)
+
+
+# ── Cache key ─────────────────────────────────────────────────────────────────
+
+def _cache_key(request: CoachRequest) -> str:
+    payload = {
+        "game_mode":       request.game_mode,
+        "boss":            request.boss,
+        "coaching_mode":   request.coaching_mode,
+        "spending_level":  request.spending_level,
+        "progression_stage": request.progression_stage,
+        "question":        request.question,
+        "hunters": sorted(
+            (h.name, h.advancement, h.weapon, h.weapon_advancement)
+            for h in request.hunters
+        ),
+    }
+    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
+
+
+# ── Robust JSON extraction ────────────────────────────────────────────────────
+
+def _extract_json(text: str) -> dict:
+    text = text.strip()
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    clean = re.sub(r"^```(?:json)?\s*", "", text, flags=re.MULTILINE)
+    clean = re.sub(r"\s*```$", "", clean, flags=re.MULTILINE)
+    try:
+        return json.loads(clean.strip())
+    except json.JSONDecodeError:
+        pass
+    m = re.search(r"\{.*\}", text, re.DOTALL)
+    if m:
+        try:
+            return json.loads(m.group())
+        except json.JSONDecodeError:
+            pass
+    _stats["json_parse_failures"] += 1
+    return {"raw_response": text, "parse_error": "Could not extract JSON from response"}
+
+
+# ── Snapshot utilities ────────────────────────────────────────────────────────
+
+def _snapshot_age_minutes() -> float:
+    try:
+        snap = json.loads(_SNAPSHOT_PATH.read_text())
+        updated = datetime.fromisoformat(snap["last_updated"])
+        if updated.tzinfo is None:
+            updated = updated.replace(tzinfo=timezone.utc)
+        return (datetime.now(timezone.utc) - updated).total_seconds() / 60
+    except Exception:
+        return float("inf")
+
+
+def _get_snapshot_confidence() -> float:
+    try:
+        snap = json.loads(_SNAPSHOT_PATH.read_text())
+        return float(snap.get("confidence", 0.0))
+    except Exception:
+        return 0.0
+
+
+def _get_snapshot_known_hunters() -> set[str]:
+    try:
+        snap = json.loads(_SNAPSHOT_PATH.read_text())
+        hunters: set[str] = set()
+        meta = snap.get("meta_reference", {})
+        for key in ("tier_ss", "tier_splus", "tier_s"):
+            hunters.update(meta.get(key, []))
+        hunters.update(snap.get("authoritative", {}).get("new_hunters", []))
+        return hunters
+    except Exception:
+        return set()
+
+
+def _load_snapshot() -> str:
+    """
+    Inject a compact, source-labelled context block into every prompt.
+    Source labels tell Gemini exactly how to weight each section.
+    """
+    try:
+        snap = json.loads(_SNAPSHOT_PATH.read_text())
+    except Exception:
+        return ""
+
+    age_min = _snapshot_age_minutes()
+    conf    = snap.get("confidence", 0)
+    lines   = [f"LIVE GAME CONTEXT (age: {age_min:.0f} min, confidence: {conf:.0%}):"]
+
+    auth = snap.get("authoritative", {})
+    if auth:
+        lines.append("\nAUTHORITATIVE — Official Netmarble (treat as facts):")
+        if auth.get("patch"):         lines.append(f"  Patch: {auth['patch']}")
+        if auth.get("new_hunters"):   lines.append(f"  New Hunters: {', '.join(auth['new_hunters'])}")
+        if auth.get("active_banners"):lines.append(f"  Active Banners: {', '.join(auth['active_banners'])}")
+
+    meta = snap.get("meta_reference", {})
+    if meta:
+        lines.append("\nMETA REFERENCE — arise.tools (community-verified, strong reference):")
+        if meta.get("upcoming_banners"): lines.append(f"  Upcoming Banners: {', '.join(meta['upcoming_banners'])}")
+        if meta.get("tier_ss"):  lines.append(f"  SS Tier: {', '.join(meta['tier_ss'])}")
+        if meta.get("tier_splus"):lines.append(f"  S+ Tier: {', '.join(meta['tier_splus'])}")
+        if meta.get("tier_s"):   lines.append(f"  S Tier: {', '.join(meta['tier_s'])}")
+
+    opinion = snap.get("community_opinion", {})
+    if opinion.get("hot_topics"):
+        lines.append("\nCOMMUNITY OPINION — Reddit (unverified, use as context only — NOT facts):")
+        for topic in opinion["hot_topics"][:5]:
+            lines.append(f"  • {topic}")
+
+    return "\n".join(lines)
+
+
+# ── Search suppression ────────────────────────────────────────────────────────
+
+_SEARCH_KEYWORDS = frozenset({
+    "patch", "update", "buff", "nerf", "latest", "new hunter",
+    "when", "banner", "release", "hotfix", "rework",
+})
+
+
+def _should_search(request: CoachRequest) -> bool:
+    """
+    True only when live Google Search is genuinely needed.
+    Fresh snapshot + stable query → snapshot + Gemini reasoning only.
+    """
+    if _snapshot_age_minutes() > 45:
+        return True
+    if _get_snapshot_confidence() < 0.5:
+        return True
+    if request.coaching_mode == "pull_advisor":
+        return True
+    q = (request.question or "").lower()
+    if any(kw in q for kw in _SEARCH_KEYWORDS):
+        return True
+    if request.hunters:
+        known = _get_snapshot_known_hunters()
+        if known and request.hunters[0].name not in known:
+            return True
+    return False
+
+
+# ── System prompt ─────────────────────────────────────────────────────────────
 
 _SYSTEM_PROMPT = """\
 You are an expert Solo Leveling: ARISE AI Coach — a continuously-updated strategy
@@ -28,11 +297,12 @@ SOURCE PRIORITY  (search in this exact order)
 6. game8.co/games/Solo-Leveling-Arise — Boss walkthroughs, tier lists, character builds
 
 Always prefer the NEWEST official source. Never cite sources unrelated to Solo Leveling: ARISE.
+Reddit opinions must NEVER be presented as facts — always label them as community sentiment.
 
 ══════════════════════════════════════════════════
 FEATURE 1 — PATCH-AWARE COACHING
 ══════════════════════════════════════════════════
-• Before every response, search official Netmarble sources for the current patch version.
+• Before every response, confirm the current patch version.
 • If any hunter in the roster was recently buffed, nerfed, or reworked, explicitly note it.
 • Identify and state the patch version your advice is based on.
 • If a new character was released that would help this player, mention it.
@@ -40,121 +310,66 @@ FEATURE 1 — PATCH-AWARE COACHING
 ══════════════════════════════════════════════════
 FEATURE 2 — META vs F2P ADVICE
 ══════════════════════════════════════════════════
-Always provide ALL of the following tiers:
-• Best-in-slot (BiS) — optimal regardless of cost
-• F2P alternative   — using only free resources
-• Low-invest alternative — minimal pulls / one key unit
-• Beginner alternative  — safe for brand-new accounts
+Always provide ALL tiers: Best-in-slot, F2P, Low-invest, Beginner.
 
 ══════════════════════════════════════════════════
 FEATURE 3 — PROGRESSION STAGE DETECTION
 ══════════════════════════════════════════════════
-Auto-detect stage from Battle Power if not explicitly stated:
-  < 200,000 BP        → new account
-  200,000–800,000 BP  → midgame
-  800,000–2,000,000 BP → endgame
-  > 2,000,000 BP      → competitive
-Tailor ALL advice to the detected stage:
-• new         → story prog, element coverage, reroll targets
-• midgame     → team synergy, specialist element teams
-• endgame     → Guild Boss scoring, Palace of Darkness, Workshop of Brilliant Light
-• competitive → top-1% rotations, exact artifact breakpoints, frame-perfect timing
+Auto-detect stage from Battle Power:
+  < 200,000 BP → new | 200k–800k → midgame | 800k–2M → endgame | > 2M → competitive
 
 ══════════════════════════════════════════════════
 FEATURE 4 — RESOURCE OPTIMIZATION
 ══════════════════════════════════════════════════
-• Flag any investment (character, weapon, artifact, skill) with poor long-term ROI.
-• Warn about power-crept characters or near-deprecated artifacts before the player commits.
-• Always recommend the highest-ROI upgrade path FIRST.
-• Provide at least one concrete resource-saving tip per response.
+Flag poor-ROI investments. Recommend highest-ROI upgrade path first.
+Always include at least one concrete resource-saving tip.
 
 ══════════════════════════════════════════════════
 FEATURE 5 — TEAM BUILDER
 ══════════════════════════════════════════════════
-• Only recommend hunters the player actually owns.
-• Build multiple teams covering different elements.
-• Identify missing roles (DPS / Breaker / Supporter) per element.
-• Rank gaps by importance for endgame content.
-• Recommend specific future pulls to fill critical gaps.
+Only recommend owned hunters. Identify missing roles per element. Rank gaps by endgame importance.
 
 ══════════════════════════════════════════════════
 FEATURE 6 — PULL / SUMMON ADVISOR
 ══════════════════════════════════════════════════
-Evaluate banners by:
-• Current meta value of the character
-• Account gaps vs existing roster
-• Upcoming banners (check official sources)
-• F2P resource cost and sustainability
-Return: Pull / Soft Pull / Skip / Skip (F2P) with explicit reasoning.
+Return: Pull / Soft Pull / Skip / Skip (F2P) with explicit reasoning and F2P sustainability.
 
 ══════════════════════════════════════════════════
 FEATURE 7 — ARTIFACT OPTIMIZATION
 ══════════════════════════════════════════════════
-For every artifact recommendation, explain:
-• WHY this set is recommended over alternatives
-• Exact main stat priority per slot
-• Substat priority order
-• Breakpoints to hit before diminishing returns
-• Farming location with highest efficiency
-• When this recommendation changes (new boss, upcoming patch, alternative comp)
+For every recommendation: WHY, exact main stat, substat priority, breakpoints, farming location, when it changes.
 
 ══════════════════════════════════════════════════
 FEATURE 8 — BOSS STRATEGY COACH
 ══════════════════════════════════════════════════
-For every boss, provide:
-• All notable attack patterns with readable tells
-• Elemental weaknesses and resistances
-• Exact positioning tips
-• Critical skill-timing windows
-• Most common player mistakes and how to avoid them
+All attack patterns with tells, elemental weaknesses, exact positioning, skill-timing windows, common mistakes.
 
 ══════════════════════════════════════════════════
 FEATURE 10 — CONFIDENCE RATINGS
 ══════════════════════════════════════════════════
-Every recommendation MUST include:
-• confidence: "High" | "Medium" | "Low"
-• confidence_reason: source used (official patch, community testing, theorycrafting, etc.)
-  High   = official patch notes + widely community-tested
-  Medium = recent community testing or limited sample
-  Low    = theorycrafting, older data, or conflicting sources
+confidence: "High" | "Medium" | "Low"
+confidence_reason: source used
+High = official patch + widely tested | Medium = recent community | Low = theorycrafting/older data
 
 ══════════════════════════════════════════════════
 FEATURE 11 — MYTH-BUSTING
 ══════════════════════════════════════════════════
-• Correct common outdated or inaccurate community beliefs.
-• Always explain WHY a myth is wrong, citing the current patch.
-• Format: "Myth: [X]. Reality: [Y] because [reason]."
+Format: "Myth: [X]. Reality: [Y] because [current patch evidence]."
 
 ══════════════════════════════════════════════════
 FEATURE 12 — FUTURE PLANNING
 ══════════════════════════════════════════════════
-Always provide a progression roadmap:
-• Short-term (1–2 weeks): immediate wins, quick upgrades
-• Mid-term (1 month): resource targets, team investments
-• Long-term (2–3 months): endgame prep, meta positioning
-Scale depth to the player's spending level and progression stage.
-
-══════════════════════════════════════════════════
-FEATURE 13 — WEB SEARCH HIERARCHY
-══════════════════════════════════════════════════
-Already defined in Source Priority above.
-If official and community sources conflict, always prefer the NEWER official source.
+Short-term (1–2 weeks), Mid-term (1 month), Long-term (2–3 months).
 
 ══════════════════════════════════════════════════
 FEATURE 14 — BUILD EXPLANATION STANDARD
 ══════════════════════════════════════════════════
-Never say "use X artifact" without explaining:
-• Why it is recommended over alternatives
-• What alternatives exist and when to use them
-• When the recommendation changes
+Never recommend without: why, alternatives, when the recommendation changes.
 
 ══════════════════════════════════════════════════
 FEATURE 15 — META CHANGE TRACKING
 ══════════════════════════════════════════════════
-When ranking a character, always state:
-• current_rank  (e.g. "SS")
-• previous_rank (e.g. "S+")
-• reason        (buff, nerf, power-crept, new synergy discovered, etc.)
+When ranking a character: current_rank, previous_rank, reason for change.
 
 ══════════════════════════════════════════════════
 OUTPUT RULES
@@ -162,200 +377,127 @@ OUTPUT RULES
 • Return ONLY valid JSON matching the exact schema in the user message.
 • No markdown fences, no extra text outside the JSON object.
 • All fields required; use null for unused scalars and [] for unused arrays.
-• All string values must be complete, informative sentences — never placeholders.
-• Provide at least 3 rotation steps when rotation is relevant.
-• Provide at least 2 mistakes_to_avoid when strategy is relevant.
+• At least 3 rotation steps when relevant. At least 2 mistakes_to_avoid when relevant.
 """
 
-# ── Client pool ──────────────────────────────────────────────────────────────
-
-def _get_next_client() -> genai.Client:
-    global _clients, _client_cycle
-    if not _clients:
-        keys = [k for k in [settings.GEMINI_API_KEY, settings.GEMINI_API_KEY_2] if k]
-        if not keys:
-            raise ValueError("No GEMINI_API_KEY configured in .env")
-        _clients = [genai.Client(api_key=k) for k in keys]
-        _client_cycle = itertools.cycle(_clients)
-    return next(_client_cycle)
+_JSON_SCHEMA = """{
+  "patch_version": "string — current game version e.g. '1.6.0'",
+  "patch_verified": "string — month/year e.g. 'June 2026'",
+  "confidence": "string — 'High', 'Medium', or 'Low'",
+  "confidence_reason": "string — source/basis for confidence level",
+  "progression_stage_detected": "string — auto-detected or confirmed stage",
+  "recommended_team": { "hunters": ["Name1", "Name2", "Name3"], "reasoning": "string" },
+  "why": "string — detailed explanation of team choice and elemental synergy",
+  "rotation": { "steps": ["1. action", "2. action", "3. action", "4. action"] },
+  "f2p_alternative": "string — F2P team or approach",
+  "low_invest_alternative": "string — approach needing only 1-2 key units",
+  "beginner_alternative": "string — safe approach for brand-new accounts",
+  "artifacts_advice": "string — concise artifact summary",
+  "artifact_optimization": {
+    "best_sets": ["Set Name 1 (reason)"],
+    "main_stats": ["Slot: stat"],
+    "substats": ["priority 1", "priority 2"],
+    "breakpoints": ["breakpoint description"],
+    "farming_priority": "string — best farming location",
+    "why": "string — WHY this set beats alternatives",
+    "alternatives": ["alt set — when to use"],
+    "when_recommendation_changes": "string"
+  },
+  "mistakes_to_avoid": ["mistake 1", "mistake 2"],
+  "expected_clear_rate": "X% — qualifier",
+  "battle_power_assessment": "string",
+  "resource_warnings": [
+    { "subject": "name", "warning": "why poor ROI", "alternative": "better use" }
+  ],
+  "pull_advice": {
+    "recommendation": "Pull | Soft Pull | Skip | Skip (F2P)",
+    "reasoning": "string",
+    "upcoming_banners": ["banner — why it matters"],
+    "resource_cost": "string",
+    "f2p_verdict": "string"
+  },
+  "boss_strategy": {
+    "attack_patterns": ["pattern with tell"],
+    "weaknesses": ["element: reason"],
+    "positioning_tips": ["tip"],
+    "skill_timing": ["when/how"],
+    "common_mistakes": ["mistake and fix"]
+  },
+  "future_planning": {
+    "short_term": ["goal (1-2 weeks)"],
+    "mid_term":   ["goal (1 month)"],
+    "long_term":  ["goal (2-3 months)"]
+  },
+  "myths_busted": ["Myth: [claim]. Reality: [correction] because [evidence]."],
+  "meta_changes": { "current_rank": "SS|S+|S|A|B", "previous_rank": "SS|S+|S|A|B", "reason": "string" },
+  "missing_roles": ["element — missing role"],
+  "future_pulls": ["Hunter name — why critical"]
+}"""
 
 
 # ── Stage detection ───────────────────────────────────────────────────────────
 
 def _detect_stage(bp: int, stated: str) -> str:
-    if bp == 0:
-        return stated
-    if bp < 200_000:
-        return "new"
-    if bp < 800_000:
-        return "midgame"
-    if bp < 2_000_000:
-        return "endgame"
+    if bp == 0:        return stated
+    if bp < 200_000:   return "new"
+    if bp < 800_000:   return "midgame"
+    if bp < 2_000_000: return "endgame"
     return "competitive"
 
 
 # ── Mode-specific instructions ────────────────────────────────────────────────
 
 def _mode_instruction(request: CoachRequest, detected_stage: str) -> str:
-    mode = request.coaching_mode
-    boss = request.boss or "N/A"
-    game_mode = request.game_mode
+    mode     = request.coaching_mode
+    boss     = request.boss or "N/A"
     spending = request.spending_level
     question = request.question or "Not specified"
-
-    base = (
-        f"Search priority sources for the latest information on {game_mode} "
-        f"(boss: {boss}). Player is {spending} spending, stage: {detected_stage}."
-    )
-
-    instructions = {
+    base = (f"Focus on {request.game_mode} (boss: {boss}). "
+            f"Player is {spending} spending, stage: {detected_stage}.")
+    return {
         "strategy": (
-            f"{base}\n"
-            "Focus: optimal team composition from owned hunters, step-by-step rotation, "
-            "artifact advice, battle-power assessment. Provide BiS AND F2P/beginner "
-            "alternatives. Flag resource warnings for any poor-ROI investments in roster."
+            f"{base}\nOptimal team, rotation, artifact advice, BP assessment. "
+            "Provide BiS AND F2P/beginner alternatives. Flag poor-ROI investments."
         ),
         "pull_advisor": (
-            f"{base}\n"
-            f"Player question: {question}\n"
-            "Evaluate the current/upcoming banner against their roster gaps and meta value. "
-            "Check official sources for upcoming banners. Return a clear Pull / Soft Pull / "
-            "Skip / Skip (F2P) verdict with full reasoning. Include F2P sustainability analysis."
+            f"{base}\nPlayer question: {question}\n"
+            "Evaluate banner vs roster gaps and meta value. "
+            "Return Pull / Soft Pull / Skip / Skip (F2P) with F2P sustainability analysis."
         ),
         "artifact_optimizer": (
-            f"{base}\n"
-            "Provide a deep artifact optimization guide for the player's main DPS hunters. "
-            "For each set, explain WHY over alternatives, exact main stats, substat priority, "
-            "breakpoints, farming priority, and when the recommendation changes."
+            f"{base}\nDeep artifact optimization for main DPS hunters. "
+            "WHY, main stats, substats, breakpoints, farming priority, when it changes."
         ),
         "boss_guide": (
-            f"{base}\n"
-            f"Boss: {boss}\n"
-            "Provide a comprehensive boss strategy: all attack patterns with tells, "
-            "elemental weaknesses/resistances, exact positioning, critical skill-timing "
-            "windows, and the most common mistakes players make."
+            f"{base}\nBoss: {boss}\n"
+            "All attack patterns with tells, weaknesses, positioning, skill-timing, common mistakes."
         ),
         "future_planning": (
-            f"{base}\n"
-            "Build a structured progression roadmap tailored to this player's roster, "
-            f"spending level ({spending}), and stage ({detected_stage}). "
-            "Short-term (1–2 weeks), mid-term (1 month), long-term (2–3 months)."
+            f"{base}\nProgression roadmap for {spending}, stage {detected_stage}. "
+            "Short-term (1-2 wks), mid-term (1 mo), long-term (2-3 mo)."
         ),
         "myth_bust": (
-            f"{base}\n"
-            f"Player question: {question}\n"
-            "Identify and correct top myths/misconceptions related to this question. "
-            "Format each as 'Myth: [X]. Reality: [Y] because [current patch evidence].'"
+            f"{base}\nPlayer question: {question}\n"
+            "Correct top myths. Format: 'Myth: [X]. Reality: [Y] because [patch evidence].'"
         ),
         "team_builder": (
-            f"{base}\n"
-            "Full roster analysis: build 2–3 optimal teams from owned hunters, identify "
-            "missing roles per element (DPS/Breaker/Supporter), rank gaps by endgame "
-            "importance, recommend specific future pulls to fill critical gaps, "
-            "and explain the synergy behind each team."
+            f"{base}\n2-3 optimal teams from owned hunters, missing roles per element, "
+            "gaps ranked by endgame importance, future pulls for critical gaps, synergy explanation."
         ),
-    }
-    return instructions.get(mode, base)
-
-
-# ── JSON schema template ──────────────────────────────────────────────────────
-
-_JSON_SCHEMA = """{
-  "patch_version": "string — current game version e.g. '1.6.0' or 'June 2026 update'",
-  "patch_verified": "string — month/year of the patch check e.g. 'June 2026'",
-  "confidence": "string — 'High', 'Medium', or 'Low'",
-  "confidence_reason": "string — source/basis for confidence level",
-  "progression_stage_detected": "string — auto-detected or confirmed stage",
-
-  "recommended_team": {
-    "hunters": ["Name1", "Name2", "Name3"],
-    "reasoning": "string — why this specific trio from the player's roster"
-  },
-  "why": "string — detailed explanation of team choice and elemental synergy",
-  "rotation": {
-    "steps": ["1. action", "2. action", "3. action", "4. action"]
-  },
-
-  "f2p_alternative": "string — F2P team or approach (no gacha required)",
-  "low_invest_alternative": "string — approach needing only 1–2 key units",
-  "beginner_alternative": "string — safe approach for brand-new accounts",
-
-  "artifacts_advice": "string — concise artifact summary",
-  "artifact_optimization": {
-    "best_sets": ["Set Name 1 (reason)", "Set Name 2 (reason)"],
-    "main_stats": ["Slot: stat", "Slot: stat"],
-    "substats": ["priority 1", "priority 2", "priority 3"],
-    "breakpoints": ["breakpoint description"],
-    "farming_priority": "string — best farming location and efficiency",
-    "why": "string — WHY this set beats alternatives for this specific hunter/content",
-    "alternatives": ["alt set 1 — when to use", "alt set 2 — when to use"],
-    "when_recommendation_changes": "string — conditions that would shift this advice"
-  },
-
-  "mistakes_to_avoid": [
-    "mistake description 1",
-    "mistake description 2"
-  ],
-  "expected_clear_rate": "X% — with brief qualifier",
-  "battle_power_assessment": "string — analysis of whether BP is sufficient",
-
-  "resource_warnings": [
-    {
-      "subject": "hunter/item name",
-      "warning": "why this investment has poor long-term value",
-      "alternative": "better use of the same resources"
-    }
-  ],
-
-  "pull_advice": {
-    "recommendation": "Pull | Soft Pull | Skip | Skip (F2P)",
-    "reasoning": "string — full reasoning for the verdict",
-    "upcoming_banners": ["banner name — why it matters"],
-    "resource_cost": "string — estimated Essence Stones / pulls required",
-    "f2p_verdict": "string — specific advice for F2P players"
-  },
-
-  "boss_strategy": {
-    "attack_patterns": ["pattern with readable tell"],
-    "weaknesses": ["element: reason"],
-    "positioning_tips": ["tip"],
-    "skill_timing": ["when/how to use which skill"],
-    "common_mistakes": ["mistake and how to avoid it"]
-  },
-
-  "future_planning": {
-    "short_term": ["goal 1 (1-2 weeks)", "goal 2"],
-    "mid_term": ["goal 1 (1 month)", "goal 2"],
-    "long_term": ["goal 1 (2-3 months)", "goal 2"]
-  },
-
-  "myths_busted": [
-    "Myth: [claim]. Reality: [correction] because [current patch evidence]."
-  ],
-
-  "meta_changes": {
-    "current_rank": "SS | S+ | S | A | B",
-    "previous_rank": "SS | S+ | S | A | B",
-    "reason": "string — what caused the rank change"
-  },
-
-  "missing_roles": ["element — missing role (e.g. Fire — Breaker)"],
-  "future_pulls": ["Hunter name — reason this fills a critical gap"]
-}"""
+    }.get(mode, base)
 
 
 # ── Prompt builder ────────────────────────────────────────────────────────────
 
 def _build_prompt(request: CoachRequest) -> str:
     detected_stage = _detect_stage(request.battle_power, request.progression_stage)
-
-    hunter_lines = "\n".join(
-        f"  - {h.name}  A{h.advancement}  Weapon: {h.weapon}+{h.weapon_advancement}"
-        f"  Power: {h.power:,}"
+    hunter_lines   = "\n".join(
+        f"  - {h.name}  A{h.advancement}  Weapon: {h.weapon}+{h.weapon_advancement}  Power: {h.power:,}"
         for h in request.hunters
     ) or "  (no hunters provided)"
-
-    mode_instr = _mode_instruction(request, detected_stage)
+    mode_instr      = _mode_instruction(request, detected_stage)
+    snapshot_block  = _load_snapshot()
+    snapshot_section = f"\n{snapshot_block}\n" if snapshot_block else ""
 
     return f"""Player Profile
 ==============
@@ -373,57 +515,163 @@ Owned Hunters:
 
 Blessing Stones : {request.blessing_stones or "none provided"}
 Artifacts       : {request.artifacts or "none provided"}
-
+{snapshot_section}
 ══════════════════════════════════════════════
 COACHING TASK
 ══════════════════════════════════════════════
 {mode_instr}
 
 REQUIRED PRE-ANSWER CHECKS:
-1. Search official Netmarble sources — confirm current patch version.
+1. Confirm current patch version.
 2. Check if any owned hunter was recently buffed, nerfed, or reworked.
-3. Verify the current meta for this game mode and boss.
-4. Check for upcoming banners relevant to this player's gaps.
+3. Verify current meta for this game mode and boss.
+4. Check upcoming banners relevant to this player's gaps.
 5. Confirm detected progression stage from battle power.
-6. Flag any resource warnings for poor-ROI investments in the roster.
+6. Flag resource warnings for poor-ROI investments.
 
 Return ONLY a valid JSON object matching this exact schema:
 {_JSON_SCHEMA}
 """
 
 
-# ── Main pipeline ─────────────────────────────────────────────────────────────
+# ── Sync Gemini calls (thread executor) ──────────────────────────────────────
+
+def _sync_generate(client: genai.Client, model: str, prompt: str, use_search: bool) -> str:
+    tools = [types.Tool(google_search=types.GoogleSearch())] if use_search else None
+    config = types.GenerateContentConfig(system_instruction=_SYSTEM_PROMPT, tools=tools)
+    return client.models.generate_content(model=model, contents=prompt, config=config).text
+
+
+def _sync_stream(client, model, prompt, use_search, queue: asyncio.Queue, loop):
+    tools = [types.Tool(google_search=types.GoogleSearch())] if use_search else None
+    config = types.GenerateContentConfig(system_instruction=_SYSTEM_PROMPT, tools=tools)
+    try:
+        for chunk in client.models.generate_content_stream(model=model, contents=prompt, config=config):
+            if chunk.text:
+                loop.call_soon_threadsafe(queue.put_nowait, ("chunk", chunk.text))
+    except Exception as e:
+        loop.call_soon_threadsafe(queue.put_nowait, ("error", str(e)))
+    finally:
+        loop.call_soon_threadsafe(queue.put_nowait, ("done", None))
+
+
+def _log_request(request: CoachRequest, searched: bool, cache_hit: bool, elapsed_ms: int):
+    _stats["total_requests"] += 1
+    for h in request.hunters:
+        _char_asks[h.name] += 1
+    _request_log.append({
+        "mode":       request.coaching_mode,
+        "searched":   searched,
+        "cache_hit":  cache_hit,
+        "hunters":    [h.name for h in request.hunters[:3]],
+        "q_len":      len(request.question or ""),
+        "ms":         elapsed_ms,
+        "ts":         time.time(),
+    })
+
+
+# ── Main pipeline (non-streaming) ─────────────────────────────────────────────
 
 async def run_coach_pipeline(request: CoachRequest) -> dict:
-    client = _get_next_client()
-    prompt = _build_prompt(request)
-    config = types.GenerateContentConfig(
-        system_instruction=_SYSTEM_PROMPT,
-        tools=[types.Tool(google_search=types.GoogleSearch())],
-    )
+    t0  = time.monotonic()
+    key = _cache_key(request)
 
-    models_to_try = [settings.LLM_MODEL, "gemini-2.0-flash"]
-    last_error = None
+    if key in _response_cache:
+        _stats["cache_hits"] += 1
+        elapsed = int((time.monotonic() - t0) * 1000)
+        _track_timing("cache_hit", elapsed)
+        _log_request(request, searched=False, cache_hit=True, elapsed_ms=elapsed)
+        print(f"[cache] HIT {elapsed}ms — {request.coaching_mode}")
+        return _response_cache[key]
 
-    for model in models_to_try:
-        try:
-            response = client.models.generate_content(
-                model=model, contents=prompt, config=config,
-            )
-            raw = response.text.strip()
-            # Strip markdown fences if present
-            if raw.startswith("```"):
-                parts = raw.split("```")
-                raw = parts[1] if len(parts) > 1 else raw
-                if raw.startswith("json"):
-                    raw = raw[4:]
-                raw = raw.strip()
+    _stats["cache_misses"] += 1
+    use_search  = _should_search(request)
+    prompt      = _build_prompt(request)
+    tried_keys  = set()
+    last_error  = None
+
+    while len(tried_keys) < len(_client_pool) + 1:
+        api_key, client = _get_best_pair()
+        if api_key in tried_keys:
+            break
+        tried_keys.add(api_key)
+
+        for model in [settings.LLM_MODEL, "gemini-2.0-flash"]:
             try:
-                return json.loads(raw)
-            except json.JSONDecodeError:
-                return {"raw_response": raw, "parse_error": "LLM did not return valid JSON"}
-        except Exception as e:
-            last_error = e
-            continue
+                raw    = await asyncio.to_thread(_sync_generate, client, model, prompt, use_search)
+                result = _extract_json(raw)
+                if "parse_error" not in result:
+                    _response_cache[key] = result
+                elapsed = int((time.monotonic() - t0) * 1000)
+                bucket  = "search" if use_search else "no_search"
+                _track_timing(bucket, elapsed)
+                if use_search: _stats["search_calls"] += 1
+                else:          _stats["no_search_calls"] += 1
+                _log_request(request, searched=use_search, cache_hit=False, elapsed_ms=elapsed)
+                print(f"[pipeline] {elapsed}ms  model={model}  search={use_search}  key=…{api_key[-6:]}")
+                return result
+            except Exception as e:
+                if _is_rate_limit(e):
+                    _stats["rate_limit_hits"] += 1
+                    _mark_rate_limited(api_key)
+                    break  # try next key
+                last_error = e
+                continue   # try next model with same key
 
-    return {"raw_response": str(last_error), "parse_error": "All models failed"}
+    return {"raw_response": str(last_error), "parse_error": "All models/keys failed"}
+
+
+# ── Streaming pipeline ────────────────────────────────────────────────────────
+
+async def run_coach_pipeline_stream(request: CoachRequest):
+    t0  = time.monotonic()
+    key = _cache_key(request)
+
+    if key in _response_cache:
+        _stats["cache_hits"] += 1
+        elapsed = int((time.monotonic() - t0) * 1000)
+        _track_timing("cache_hit", elapsed)
+        _log_request(request, searched=False, cache_hit=True, elapsed_ms=elapsed)
+        print(f"[cache] HIT (stream) {elapsed}ms")
+        yield f"data: {json.dumps({'type': 'result', 'data': _response_cache[key]})}\n\n"
+        return
+
+    _stats["cache_misses"] += 1
+    use_search = _should_search(request)
+    prompt     = _build_prompt(request)
+
+    # Rate-limit failover: try the best available key
+    api_key, client = _get_best_pair()
+
+    loop  = asyncio.get_running_loop()
+    queue: asyncio.Queue = asyncio.Queue()
+    loop.run_in_executor(None, _sync_stream, client, settings.LLM_MODEL, prompt, use_search, queue, loop)
+
+    full_text: list[str] = []
+    rate_limited = False
+
+    while True:
+        kind, value = await queue.get()
+        if kind == "chunk":
+            full_text.append(value)
+            yield f"data: {json.dumps({'type': 'chunk', 'text': value})}\n\n"
+        elif kind == "done":
+            result  = _extract_json("".join(full_text))
+            elapsed = int((time.monotonic() - t0) * 1000)
+            bucket  = "search" if use_search else "no_search"
+            _track_timing(bucket, elapsed)
+            if use_search: _stats["search_calls"] += 1
+            else:          _stats["no_search_calls"] += 1
+            _log_request(request, searched=use_search, cache_hit=False, elapsed_ms=elapsed)
+            if "parse_error" not in result:
+                _response_cache[key] = result
+            print(f"[pipeline] stream {elapsed}ms  search={use_search}")
+            yield f"data: {json.dumps({'type': 'result', 'data': result})}\n\n"
+            break
+        elif kind == "error":
+            if _is_rate_limit(Exception(value)):
+                _stats["rate_limit_hits"] += 1
+                _mark_rate_limited(api_key)
+                rate_limited = True
+            yield f"data: {json.dumps({'type': 'error', 'message': value})}\n\n"
+            break

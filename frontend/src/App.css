@@ -1103,6 +1103,108 @@
   padding: 20px;
 }
 
+/* ── Streaming indicator ── */
+.stream-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 8px 16px;
+  background: rgba(124, 92, 252, 0.08);
+  border: 1px solid rgba(124, 92, 252, 0.25);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.stream-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  animation: stream-beat 1s ease-in-out infinite;
+}
+
+@keyframes stream-beat {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.75); }
+}
+
+.stream-label {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.stream-count {
+  margin-left: auto;
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+
+/* ── Feedback bar ── */
+.feedback-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 28px;
+  padding: 14px 20px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.feedback-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.feedback-btn {
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border-md);
+  background: transparent;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.feedback-btn:disabled { opacity: 0.45; cursor: default; }
+
+.feedback-btn.helpful          { color: #60e860; }
+.feedback-btn.helpful:hover:not(:disabled) { background: rgba(96,232,96,0.10); border-color: #60e860; }
+.feedback-btn.helpful.active   { background: rgba(96,232,96,0.15); border-color: #60e860; color: #60e860; }
+
+.feedback-btn.wrong            { color: #e05555; }
+.feedback-btn.wrong:hover:not(:disabled)   { background: rgba(224,85,85,0.10);  border-color: #e05555; }
+.feedback-btn.wrong.active     { background: rgba(224,85,85,0.15);  border-color: #e05555; color: #e05555; }
+
+.feedback-thanks {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-left: 4px;
+}
+
+.regen-btn {
+  padding: 6px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid rgba(124,92,252,0.35);
+  background: rgba(124,92,252,0.08);
+  color: var(--accent);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.regen-btn:hover {
+  background: rgba(124,92,252,0.16);
+  border-color: rgba(124,92,252,0.60);
+}
+
 .raw-response pre {
   white-space: pre-wrap;
   font-family: 'JetBrains Mono', monospace;

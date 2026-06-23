@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 
 // ── Element colour maps ──────────────────────────────────────────────────────
@@ -65,8 +66,51 @@ function BulletList({ items, mark, markClass }) {
   );
 }
 
+// ── Feedback bar ─────────────────────────────────────────────────────────────
+function FeedbackBar({ coachingMode, onRegenerate, onFeedback }) {
+  const [sent, setSent] = useState(null); // null | 'up' | 'down'
+
+  function rate(val) {
+    if (sent) return;
+    setSent(val > 0 ? 'up' : 'down');
+    onFeedback?.(val, coachingMode);
+  }
+
+  function regen() {
+    onFeedback?.(0, coachingMode, true);
+    onRegenerate?.();
+  }
+
+  return (
+    <div className="feedback-bar">
+      <div className="feedback-rating">
+        <button
+          className={`feedback-btn helpful${sent === 'up' ? ' active' : ''}`}
+          onClick={() => rate(1)}
+          disabled={!!sent}
+          title="This advice was helpful"
+        >
+          Helpful
+        </button>
+        <button
+          className={`feedback-btn wrong${sent === 'down' ? ' active' : ''}`}
+          onClick={() => rate(-1)}
+          disabled={!!sent}
+          title="This advice was wrong or outdated"
+        >
+          Incorrect
+        </button>
+        {sent && <span className="feedback-thanks">Recorded — thanks</span>}
+      </div>
+      <button className="regen-btn" onClick={regen} title="Re-run this analysis">
+        Regenerate
+      </button>
+    </div>
+  );
+}
+
 // ── Main component ───────────────────────────────────────────────────────────
-export default function StrategyOutput({ strategy, gameMode, boss }) {
+export default function StrategyOutput({ strategy, gameMode, boss, coachingMode, onRegenerate, onFeedback }) {
   if (strategy.parse_error) {
     return (
       <div className="raw-response">
@@ -465,6 +509,13 @@ export default function StrategyOutput({ strategy, gameMode, boss }) {
           </div>
         </Section>
       )}
+
+      {/* ── Feedback + Regenerate ────────────────────────── */}
+      <FeedbackBar
+        coachingMode={coachingMode}
+        onRegenerate={onRegenerate}
+        onFeedback={onFeedback}
+      />
 
     </motion.div>
   );

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import './App.css';
 import PortalScene from './components/portal/PortalScene';
@@ -6,7 +6,7 @@ import CoachingModeSelector from './components/CoachingModeSelector';
 import GameModeSelector from './components/GameModeSelector';
 import RosterInput from './components/RosterInput';
 import StrategyOutput from './components/StrategyOutput';
-import { getStrategy } from './services/api';
+import { getStrategyStream, postFeedback } from './services/api';
 import { loadProfile, loadRoster, saveProfile } from './services/memory';
 
 const MODE_LABEL = {
@@ -41,6 +41,8 @@ export default function App() {
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState(null);
   const [isSurging, setIsSurging] = useState(false);
+  const [streamChars, setStreamChars] = useState(0);
+  const streamCharsRef = useRef(0);
 
   // Persist profile changes to memory
   useEffect(() => {
@@ -53,24 +55,44 @@ export default function App() {
     setLoading(true);
     setError(null);
     setStrategy(null);
+    setStreamChars(0);
+    streamCharsRef.current = 0;
+
+    const payload = {
+      game_mode:        gameMode,
+      boss:             boss || null,
+      jinwoo_power:     jinwooPower,
+      hunters,
+      battle_power:     battlePower,
+      spending_level:   spendingLevel,
+      progression_stage: progressionStage,
+      coaching_mode:    coachingMode,
+      question:         question || null,
+    };
+
+    await getStrategyStream(payload, {
+      onChunk: (text) => {
+        streamCharsRef.current += text.length;
+        // Throttle state update to every ~200 chars to reduce re-renders
+        if (streamCharsRef.current % 200 < text.length) {
+          setStreamChars(streamCharsRef.current);
+        }
+      },
+      onResult: (data) => {
+        setStrategy(data);
+        setLoading(false);
+      },
+      onError: (e) => {
+        setError(e.message);
+        setLoading(false);
+      },
+    });
+  }
+
+  async function handleFeedback(rating, mode, regenerated = false) {
     try {
-      const result = await getStrategy({
-        game_mode:        gameMode,
-        boss:             boss || null,
-        jinwoo_power:     jinwooPower,
-        hunters,
-        battle_power:     battlePower,
-        spending_level:   spendingLevel,
-        progression_stage: progressionStage,
-        coaching_mode:    coachingMode,
-        question:         question || null,
-      });
-      setStrategy(result);
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
+      await postFeedback({ rating, coaching_mode: mode, regenerated });
+    } catch { /* non-critical — don't surface to user */ }
   }
 
   const loadingDesc = {
@@ -159,6 +181,20 @@ export default function App() {
                   <div className="empty-glyph">◈</div>
                   <div className="empty-title">Consulting the Shadows</div>
                   <div className="empty-desc">{loadingDesc[coachingMode]}</div>
+                  <AnimatePresence>
+                    {streamChars > 0 && (
+                      <motion.div
+                        className="stream-indicator"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <span className="stream-pulse" />
+                        <span className="stream-label">Receiving live data</span>
+                        <span className="stream-count">{streamChars.toLocaleString()} chars</span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               )}
               {!loading && strategy && (
@@ -169,7 +205,14 @@ export default function App() {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <StrategyOutput strategy={strategy} gameMode={gameMode} boss={boss} />
+                  <StrategyOutput
+                    strategy={strategy}
+                    gameMode={gameMode}
+                    boss={boss}
+                    coachingMode={coachingMode}
+                    onRegenerate={handleAnalyze}
+                    onFeedback={handleFeedback}
+                  />
                 </motion.div>
               )}
               {!loading && !strategy && (
