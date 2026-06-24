@@ -82,3 +82,5 @@ export const listHunters = () => req('/hunters/');
 
 export const listBosses = (mode) =>
   req(mode ? `/bosses/?mode=${encodeURIComponent(mode)}` : '/bosses/');
+
+export const getSnapshot = () => req('/meta/snapshot');

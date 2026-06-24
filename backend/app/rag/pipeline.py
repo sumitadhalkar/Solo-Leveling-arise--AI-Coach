@@ -332,7 +332,9 @@ Only recommend owned hunters. Identify missing roles per element. Rank gaps by e
 ══════════════════════════════════════════════════
 FEATURE 6 — PULL / SUMMON ADVISOR
 ══════════════════════════════════════════════════
-Return: Pull / Soft Pull / Skip / Skip (F2P) with explicit reasoning and F2P sustainability.
+Return: Pull / Soft Pull / Conditional / Skip / Skip (F2P) with explicit reasoning, F2P sustainability,
+and separate pros[] and cons[] arrays listing concrete reasons for each side of the decision.
+Conditional = worth pulling only under specific roster or resource conditions (explain in reasoning).
 
 ══════════════════════════════════════════════════
 FEATURE 7 — ARTIFACT OPTIMIZATION
@@ -410,8 +412,11 @@ _JSON_SCHEMA = """{
     { "subject": "name", "warning": "why poor ROI", "alternative": "better use" }
   ],
   "pull_advice": {
-    "recommendation": "Pull | Soft Pull | Skip | Skip (F2P)",
-    "reasoning": "string",
+    "recommendation": "Pull | Soft Pull | Conditional | Skip | Skip (F2P)",
+    "reasoning": "string — 2-3 sentence verdict summary",
+    "pros": ["string — concrete reason to pull"],
+    "cons": ["string — concrete reason to skip"],
+    "alternatives": ["alternative hunter or banner if skipping"],
     "upcoming_banners": ["banner — why it matters"],
     "resource_cost": "string",
     "f2p_verdict": "string"

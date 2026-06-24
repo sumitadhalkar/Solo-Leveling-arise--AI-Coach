@@ -35,6 +35,7 @@ const CONFIDENCE_STYLE = {
 const PULL_COLOR = {
   'Pull':         '#60e860',
   'Soft Pull':    '#e8c04a',
+  'Conditional':  '#50b0f0',
   'Skip':         '#e05555',
   'Skip (F2P)':   '#f07050',
 };
@@ -66,9 +67,86 @@ function BulletList({ items, mark, markClass }) {
   );
 }
 
+// ── Pull Advisor hero section ─────────────────────────────────────────────────
+function PullHero({ pull_advice, pullColor }) {
+  return (
+    <Section eyebrow="Verdict">
+      <div
+        className="pull-hero-verdict"
+        style={{ borderColor: pullColor, color: pullColor }}
+      >
+        {pull_advice.recommendation}
+      </div>
+
+      {pull_advice.reasoning && (
+        <p className="strategy-text" style={{ marginTop: 12 }}>{pull_advice.reasoning}</p>
+      )}
+
+      {(pull_advice.pros?.length > 0 || pull_advice.cons?.length > 0) && (
+        <div className="pull-pros-cons" style={{ marginTop: 16 }}>
+          {pull_advice.pros?.length > 0 && (
+            <div className="pull-pro-block">
+              <div className="pull-pc-label">Reasons to Pull</div>
+              <ul className="pull-pc-list">
+                {pull_advice.pros.map((p, i) => (
+                  <li key={i}>
+                    <span className="pc-mark-pro">✓</span>
+                    <span className="strategy-text">{p}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {pull_advice.cons?.length > 0 && (
+            <div className="pull-con-block">
+              <div className="pull-pc-label">Reasons to Skip</div>
+              <ul className="pull-pc-list">
+                {pull_advice.cons.map((c, i) => (
+                  <li key={i}>
+                    <span className="pc-mark-con">✗</span>
+                    <span className="strategy-text">{c}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
+      {pull_advice.resource_cost && (
+        <div className="pull-cost" style={{ marginTop: 14 }}>
+          <span className="pull-cost-label">Resource cost:</span>{' '}
+          <span className="strategy-text">{pull_advice.resource_cost}</span>
+        </div>
+      )}
+
+      {pull_advice.f2p_verdict && (
+        <div className="pull-f2p" style={{ marginTop: 10 }}>
+          <span className="pull-f2p-label">F2P verdict:</span>
+          <p className="strategy-text">{pull_advice.f2p_verdict}</p>
+        </div>
+      )}
+
+      {pull_advice.alternatives?.length > 0 && (
+        <div className="pull-upcoming" style={{ marginTop: 14 }}>
+          <div className="pull-upcoming-label">Alternatives to Consider</div>
+          <BulletList items={pull_advice.alternatives} mark="◈" />
+        </div>
+      )}
+
+      {pull_advice.upcoming_banners?.length > 0 && (
+        <div className="pull-upcoming" style={{ marginTop: 12 }}>
+          <div className="pull-upcoming-label">Upcoming Banners</div>
+          <BulletList items={pull_advice.upcoming_banners} mark="◈" />
+        </div>
+      )}
+    </Section>
+  );
+}
+
 // ── Feedback bar ─────────────────────────────────────────────────────────────
 function FeedbackBar({ coachingMode, onRegenerate, onFeedback }) {
-  const [sent, setSent] = useState(null); // null | 'up' | 'down'
+  const [sent, setSent] = useState(null);
 
   function rate(val) {
     if (sent) return;
@@ -110,7 +188,10 @@ function FeedbackBar({ coachingMode, onRegenerate, onFeedback }) {
 }
 
 // ── Main component ───────────────────────────────────────────────────────────
-export default function StrategyOutput({ strategy, gameMode, boss, coachingMode, onRegenerate, onFeedback }) {
+export default function StrategyOutput({
+  strategy, gameMode, boss, coachingMode,
+  onRegenerate, onFeedback, onSwitchMode,
+}) {
   if (strategy.parse_error) {
     return (
       <div className="raw-response">
@@ -120,34 +201,22 @@ export default function StrategyOutput({ strategy, gameMode, boss, coachingMode,
     );
   }
 
+  const isPull = coachingMode === 'pull_advisor';
+
   const {
-    // Core
     recommended_team, why, rotation,
-    // Gear
     artifacts_advice, artifact_optimization,
-    // Avoidance + assessment
     mistakes_to_avoid, expected_clear_rate, battle_power_assessment,
-    // Feature 1 – patch
     patch_version, patch_verified,
-    // Feature 2 – spending tiers
     f2p_alternative, low_invest_alternative, beginner_alternative,
-    // Feature 3 – progression
     progression_stage_detected,
-    // Feature 4 – resource warnings
     resource_warnings,
-    // Feature 6 – pull advice
     pull_advice,
-    // Feature 8 – boss strategy
     boss_strategy,
-    // Feature 10 – confidence
     confidence, confidence_reason,
-    // Feature 11 – myth busting
     myths_busted,
-    // Feature 12 – future planning
     future_planning,
-    // Feature 15 – meta changes
     meta_changes,
-    // Feature 5 – team builder
     missing_roles, future_pulls,
   } = strategy;
 
@@ -156,6 +225,12 @@ export default function StrategyOutput({ strategy, gameMode, boss, coachingMode,
 
   return (
     <motion.div className="strategy" variants={container} initial="hidden" animate="show">
+
+      {/* ── Report banner ─────────────────────────────────── */}
+      <motion.div className={`report-banner ${isPull ? 'pull' : 'analyze'}`} variants={item}>
+        <span>{isPull ? '🎯' : '🧠'}</span>
+        {isPull ? 'Pull Advisor Report' : 'Analyze Report'}
+      </motion.div>
 
       {/* ── Header bar ──────────────────────────────────────── */}
       <div className="strategy-header">
@@ -182,14 +257,19 @@ export default function StrategyOutput({ strategy, gameMode, boss, coachingMode,
         </div>
       </div>
 
-      {/* Feature 10 – confidence reason tooltip row */}
+      {/* Confidence reason */}
       {confidence_reason && (
         <motion.div className="confidence-reason" variants={item}>
           <span className="conf-icon">◈</span> {confidence_reason}
         </motion.div>
       )}
 
-      {/* ── Feature 15 – Meta Change Tracking ────────────── */}
+      {/* ── PULL MODE: hero verdict first ────────────────── */}
+      {isPull && pull_advice && (
+        <PullHero pull_advice={pull_advice} pullColor={pullColor} />
+      )}
+
+      {/* ── Meta Change Tracking ─────────────────────────── */}
       {meta_changes?.current_rank && (
         <Section eyebrow="Meta Change Tracking">
           <div className="meta-change-row">
@@ -247,7 +327,7 @@ export default function StrategyOutput({ strategy, gameMode, boss, coachingMode,
         </Section>
       )}
 
-      {/* ── Feature 2 – Spending Tier Alternatives ───────── */}
+      {/* ── Budget Alternatives ───────────────────────────── */}
       {(f2p_alternative || low_invest_alternative || beginner_alternative) && (
         <Section eyebrow="Budget Alternatives">
           <div className="alt-tiers">
@@ -273,7 +353,7 @@ export default function StrategyOutput({ strategy, gameMode, boss, coachingMode,
         </Section>
       )}
 
-      {/* ── Feature 4 – Resource Warnings ────────────────── */}
+      {/* ── Resource Warnings ────────────────────────────── */}
       {resource_warnings?.length > 0 && (
         <Section eyebrow="Resource Warnings">
           <div className="resource-warnings">
@@ -293,7 +373,7 @@ export default function StrategyOutput({ strategy, gameMode, boss, coachingMode,
         </Section>
       )}
 
-      {/* ── Feature 7 – Artifact Optimization (detailed) ─── */}
+      {/* ── Artifact Optimization ────────────────────────── */}
       {artifact_optimization?.best_sets?.length > 0 ? (
         <Section eyebrow="Artifact Optimization">
           <div className="artifact-grid">
@@ -347,7 +427,7 @@ export default function StrategyOutput({ strategy, gameMode, boss, coachingMode,
         </Section>
       ) : null}
 
-      {/* ── Feature 8 – Boss Strategy ─────────────────────── */}
+      {/* ── Boss Strategy ─────────────────────────────────── */}
       {boss_strategy && (
         <Section eyebrow="Boss Strategy">
           {boss_strategy.weaknesses?.length > 0 && (
@@ -390,8 +470,8 @@ export default function StrategyOutput({ strategy, gameMode, boss, coachingMode,
         </Section>
       )}
 
-      {/* ── Feature 6 – Pull Advisor ─────────────────────── */}
-      {pull_advice && (
+      {/* ── Pull Advisor in analyze mode (compact) ───────── */}
+      {!isPull && pull_advice && (
         <Section eyebrow="Pull Advisor">
           <div className="pull-verdict" style={{ borderColor: pullColor, color: pullColor }}>
             {pull_advice.recommendation}
@@ -418,7 +498,7 @@ export default function StrategyOutput({ strategy, gameMode, boss, coachingMode,
         </Section>
       )}
 
-      {/* ── Feature 5 – Team Builder Results ─────────────── */}
+      {/* ── Roster Analysis (Team Builder) ───────────────── */}
       {(missing_roles?.length > 0 || future_pulls?.length > 0) && (
         <Section eyebrow="Roster Analysis">
           {missing_roles?.length > 0 && (
@@ -450,7 +530,7 @@ export default function StrategyOutput({ strategy, gameMode, boss, coachingMode,
         </Section>
       )}
 
-      {/* ── Feature 11 – Myth Busting ─────────────────────── */}
+      {/* ── Myth Busting ──────────────────────────────────── */}
       {myths_busted?.length > 0 && (
         <Section eyebrow="Myth Busting">
           <div className="myth-list">
@@ -464,7 +544,7 @@ export default function StrategyOutput({ strategy, gameMode, boss, coachingMode,
         </Section>
       )}
 
-      {/* ── Feature 12 – Future Planning ─────────────────── */}
+      {/* ── Future Planning ───────────────────────────────── */}
       {future_planning && (
         <Section eyebrow="Progression Road Map">
           <div className="planning-grid">
@@ -510,12 +590,24 @@ export default function StrategyOutput({ strategy, gameMode, boss, coachingMode,
         </Section>
       )}
 
-      {/* ── Feedback + Regenerate ────────────────────────── */}
+      {/* ── Feedback ─────────────────────────────────────── */}
       <FeedbackBar
         coachingMode={coachingMode}
         onRegenerate={onRegenerate}
         onFeedback={onFeedback}
       />
+
+      {/* ── Quick switch ─────────────────────────────────── */}
+      {onSwitchMode && (
+        <motion.div className="quick-switch" variants={item}>
+          <button
+            className="quick-switch-btn"
+            onClick={() => onSwitchMode(isPull ? 'analyze' : 'pull')}
+          >
+            {isPull ? 'Switch to Analyze Mode →' : 'Switch to Pull Advisor →'}
+          </button>
+        </motion.div>
+      )}
 
     </motion.div>
   );
