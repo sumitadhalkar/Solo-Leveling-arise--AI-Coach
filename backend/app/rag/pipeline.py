@@ -601,7 +601,7 @@ async def run_coach_pipeline(request: CoachRequest) -> dict:
             break
         tried_keys.add(api_key)
 
-        for model in [settings.LLM_MODEL, "gemini-2.0-flash"]:
+        for model in [settings.LLM_MODEL]:
             try:
                 raw    = await asyncio.to_thread(_sync_generate, client, model, prompt, use_search)
                 result = _extract_json(raw)
