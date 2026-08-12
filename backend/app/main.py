@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 from app.api.router import api_router
 from app.workers.snapshot import snapshot_worker
@@ -26,9 +27,17 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Allow origins can be configured via the ALLOWED_ORIGINS environment variable
+# as a comma-separated list (e.g. "http://localhost:3000,https://my-app.vercel.app").
+allowed = os.getenv("ALLOWED_ORIGINS")
+if allowed:
+    allow_origins = [o.strip() for o in allowed.split(",") if o.strip()]
+else:
+    allow_origins = ["http://localhost:3000", "https://solorank-vkhzef00k-sumit-s-projects20.vercel.app/"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
