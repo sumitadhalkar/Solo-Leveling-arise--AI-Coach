@@ -102,7 +102,7 @@ async def refresh_snapshot() -> bool:
 
     def _call():
         return client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-3.6-flash",
             contents=_PROMPT,
             config=config,
         )
