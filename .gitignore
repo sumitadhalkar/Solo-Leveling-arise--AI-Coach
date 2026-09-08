@@ -1,8 +1,12 @@
 ﻿.env
 backend/.env
 .env.*
+!.env.example
+!backend/.env.example
 */node_modules
 *.venv
 *venv
 *__pycache__
 *.cache
+backend/meta_snapshot.json
+backend/hunters_live.json

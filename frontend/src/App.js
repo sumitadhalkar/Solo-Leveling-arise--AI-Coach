@@ -23,6 +23,8 @@ export default function App() {
   const [spendingLevel, setSpendingLevel]       = useState(savedProfile.spending_level || 'f2p');
   const [progressionStage, setProgressionStage] = useState(savedProfile.progression_stage || 'midgame');
   const [question, setQuestion]                 = useState('');
+  // Pull Advisor only — lightweight roster-gap signal without the full roster builder.
+  const [ownsAlternative, setOwnsAlternative]    = useState(null); // null | 'yes' | 'no' | 'unsure'
 
   // ── Roster ──
   const [hunters, setHunters]         = useState(loadRoster);
@@ -61,6 +63,19 @@ export default function App() {
     setStatusMessage(null);
     streamCharsRef.current = 0;
 
+    // Pull Advisor skips the roster builder, so fold its one extra signal
+    // (whether the player already covers this hunter's role) into the question
+    // text at submit time — the visible input box stays exactly what the user typed.
+    let finalQuestion = question || null;
+    if (coachingMode === 'pull_advisor' && finalQuestion && ownsAlternative) {
+      const context = {
+        yes:    'Player already owns this hunter or a strong alternative in the same role.',
+        no:     'Player does NOT own this hunter or any strong alternative in that role.',
+        unsure: 'Player is unsure whether they already have a strong alternative for this role.',
+      }[ownsAlternative];
+      finalQuestion = `${finalQuestion}\n\n(${context})`;
+    }
+
     const payload = {
       game_mode:         gameMode,
       boss:              boss || null,
@@ -70,7 +85,7 @@ export default function App() {
       spending_level:    spendingLevel,
       progression_stage: progressionStage,
       coaching_mode:     coachingMode,
-      question:          question || null,
+      question:          finalQuestion,
     };
 
     await getStrategyStream(payload, {
@@ -98,6 +113,7 @@ export default function App() {
     spendingLevel, setSpendingLevel,
     progressionStage, setProgressionStage,
     question, setQuestion,
+    ownsAlternative, setOwnsAlternative,
     hunters, setHunters,
     battlePower, setBattlePower,
     jinwooPower, setJinwooPower,

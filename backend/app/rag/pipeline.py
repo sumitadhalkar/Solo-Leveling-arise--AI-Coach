@@ -10,6 +10,7 @@ from pathlib import Path
 from cachetools import TTLCache
 from google import genai
 from google.genai import types
+from openai import OpenAI
 
 from app.core.config import settings
 from app.schemas.coach import CoachRequest
@@ -20,29 +21,60 @@ _response_cache: TTLCache = TTLCache(maxsize=500, ttl=1800)
 # ── Snapshot path (written by background worker) ──────────────────────────────
 _SNAPSHOT_PATH = Path(__file__).parent.parent.parent / "meta_snapshot.json"
 
-# ── API key pool — smart failover, not blind round-robin ─────────────────────
-_client_pool: list[tuple[str, genai.Client]] = []   # [(key_str, client), ...]
-_key_cooldowns: dict[str, float] = {}               # key_str -> monotonic expiry
+# ── Provider pools — Gemini (search-capable) + a generic OpenAI-compatible ───
+# ── slot (NVIDIA by default, but any provider speaking that protocol works) ──
+# The compat slot has no equivalent to Gemini's live Google Search grounding
+# tool — that's a Gemini-specific feature, not something any OpenAI-compatible
+# provider offers — so it can only ever serve requests that don't need fresh
+# web data. It's a genuinely separate quota pool from Gemini's though, so
+# routing ordinary (non-search) generation there first takes real pressure off
+# Gemini's tighter, search-capable quota — Gemini stays the fallback if the
+# compat slot is unconfigured, cooling down, or erroring.
+_gemini_pool: list[tuple[str, genai.Client]] = []   # [(key_str, client), ...]
+_compat_pool: list[tuple[str, OpenAI]] = []         # [(key_str, client), ...]
+_key_cooldowns: dict[str, float] = {}               # key_str -> monotonic expiry (shared)
 
 
-def _init_pool():
-    global _client_pool
-    if _client_pool:
-        return
-    keys = [k for k in [settings.GEMINI_API_KEY, settings.GEMINI_API_KEY_2] if k]
-    if not keys:
-        raise ValueError("No GEMINI_API_KEY configured in .env")
-    _client_pool = [(k, genai.Client(api_key=k)) for k in keys]
+def _init_pools():
+    global _gemini_pool, _compat_pool
+    if not _gemini_pool:
+        _gemini_pool = [(k, genai.Client(api_key=k)) for k in settings.gemini_keys()]
+    if not _compat_pool:
+        base_url = settings.compat_base_url()
+        _compat_pool = [(k, OpenAI(api_key=k, base_url=base_url)) for k in settings.compat_keys()]
+    if not _gemini_pool and not _compat_pool:
+        raise ValueError("No GEMINI_API_KEY or OPENAI_COMPATIBLE_API_KEY configured in .env")
 
 
-def _get_best_pair() -> tuple[str, genai.Client]:
-    """Return first key not in cooldown; fall back to soonest-recovering key."""
-    _init_pool()
+def _all_keys() -> list[str]:
+    return [k for k, _ in _gemini_pool] + [k for k, _ in _compat_pool]
+
+
+def _model_for(provider: str) -> str:
+    return settings.LLM_MODEL if provider == "gemini" else settings.compat_model()
+
+
+def _pick_candidate(use_search: bool) -> tuple[str, str, object]:
+    """Return (provider, key, client) — the configured compat provider first
+    for non-search requests, Gemini-only when live search is required."""
+    _init_pools()
     now = time.monotonic()
-    for key, client in _client_pool:
-        if _key_cooldowns.get(key, 0) <= now:
-            return key, client
-    return min(_client_pool, key=lambda p: _key_cooldowns.get(p[0], 0))
+
+    gemini = sorted((("gemini", k, c) for k, c in _gemini_pool), key=lambda t: _key_cooldowns.get(t[1], 0))
+    compat = sorted((("compat", k, c) for k, c in _compat_pool), key=lambda t: _key_cooldowns.get(t[1], 0))
+
+    if use_search:
+        # Gemini is strongly preferred (only it can ground on live search), but
+        # a compat-only deployment must still degrade to it rather than having
+        # every search-needing request fail outright.
+        ordered = gemini or compat
+    else:
+        ordered = (compat + gemini) if compat else gemini
+
+    for cand in ordered:
+        if _key_cooldowns.get(cand[1], 0) <= now:
+            return cand
+    return min(ordered, key=lambda c: _key_cooldowns.get(c[1], 0))
 
 
 def _mark_rate_limited(key: str, cooldown_s: int = 60):
@@ -51,9 +83,11 @@ def _mark_rate_limited(key: str, cooldown_s: int = 60):
 
 
 def _is_rate_limit(e: Exception) -> bool:
+    # Covers both google-genai's message format ("429 RESOURCE_EXHAUSTED...")
+    # and the OpenAI SDK's ("Error code: 429 - {'error': {'type': 'rate_limit_exceeded'...")
     msg = str(e).lower()
     return any(kw in msg for kw in (
-        "429", "quota", "rate limit", "resource_exhausted", "rateerror", "too many requests"
+        "429", "quota", "rate limit", "rate_limit", "resource_exhausted", "rateerror", "too many requests"
     ))
 
 
@@ -68,6 +102,7 @@ def _is_transient(e: Exception) -> bool:
     return any(kw in msg for kw in (
         "503", "unavailable", "overloaded", "high demand", "500", "internal error",
         "502", "504", "deadline", "timeout", "connection reset", "temporarily",
+        "connection error", "connect timeout", "service unavailable",
     ))
 
 
@@ -99,6 +134,8 @@ _stats: dict = {
     "total_requests":     0,
     "rate_limit_hits":    0,
     "errors":             0,
+    "gemini_calls":       0,
+    "compat_calls":       0,
 }
 _timing: dict = {
     "cache_hit": {"ms": 0, "count": 0},
@@ -135,6 +172,10 @@ def get_stats() -> dict:
         "json_parse_failures": _stats["json_parse_failures"],
         "rate_limit_hits":     _stats["rate_limit_hits"],
         "errors":              _stats["errors"],
+        "provider_calls":      {
+            "gemini": _stats["gemini_calls"],
+            f"compat ({settings.compat_label()})": _stats["compat_calls"],
+        },
         "latency": {
             "cache_hit_avg":  _avg_ms("cache_hit"),
             "no_search_avg":  _avg_ms("no_search"),
@@ -573,21 +614,49 @@ Return ONLY a valid JSON object matching this exact schema:
 """
 
 
-# ── Sync Gemini calls (thread executor) ──────────────────────────────────────
+# ── Sync provider calls (thread executor) — Gemini or the compat slot ────────
 
-def _sync_generate(client: genai.Client, model: str, prompt: str, use_search: bool) -> str:
-    tools = [types.Tool(google_search=types.GoogleSearch())] if use_search else None
-    config = types.GenerateContentConfig(system_instruction=_SYSTEM_PROMPT, tools=tools)
-    return client.models.generate_content(model=model, contents=prompt, config=config).text
+def _sync_generate(provider: str, client, model: str, prompt: str, use_search: bool) -> str:
+    if provider == "gemini":
+        tools = [types.Tool(google_search=types.GoogleSearch())] if use_search else None
+        config = types.GenerateContentConfig(system_instruction=_SYSTEM_PROMPT, tools=tools)
+        return client.models.generate_content(model=model, contents=prompt, config=config).text
+
+    # The configured OpenAI-compatible provider (NVIDIA by default) — plain
+    # chat completions, no search tool available from any provider here.
+    resp = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": _SYSTEM_PROMPT},
+            {"role": "user", "content": prompt},
+        ],
+        temperature=0.4,
+    )
+    return resp.choices[0].message.content or ""
 
 
-def _sync_stream(client, model, prompt, use_search, queue: asyncio.Queue, loop):
-    tools = [types.Tool(google_search=types.GoogleSearch())] if use_search else None
-    config = types.GenerateContentConfig(system_instruction=_SYSTEM_PROMPT, tools=tools)
+def _sync_stream(provider: str, client, model, prompt, use_search, queue: asyncio.Queue, loop):
     try:
-        for chunk in client.models.generate_content_stream(model=model, contents=prompt, config=config):
-            if chunk.text:
-                loop.call_soon_threadsafe(queue.put_nowait, ("chunk", chunk.text))
+        if provider == "gemini":
+            tools = [types.Tool(google_search=types.GoogleSearch())] if use_search else None
+            config = types.GenerateContentConfig(system_instruction=_SYSTEM_PROMPT, tools=tools)
+            for chunk in client.models.generate_content_stream(model=model, contents=prompt, config=config):
+                if chunk.text:
+                    loop.call_soon_threadsafe(queue.put_nowait, ("chunk", chunk.text))
+        else:
+            stream = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": _SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt},
+                ],
+                temperature=0.4,
+                stream=True,
+            )
+            for chunk in stream:
+                delta = chunk.choices[0].delta.content if chunk.choices else None
+                if delta:
+                    loop.call_soon_threadsafe(queue.put_nowait, ("chunk", delta))
     except Exception as e:
         loop.call_soon_threadsafe(queue.put_nowait, ("error", str(e)))
     finally:
@@ -626,15 +695,15 @@ async def run_coach_pipeline(request: CoachRequest) -> dict:
     _stats["cache_misses"] += 1
     use_search = _should_search(request)
     prompt     = _build_prompt(request)
-    model      = settings.LLM_MODEL
     last_error = None
 
-    _init_pool()
+    _init_pools()
 
     for attempt in range(len(_RETRY_BACKOFF) + 1):
-        api_key, client = _get_best_pair()
+        provider, api_key, client = _pick_candidate(use_search)
+        model = _model_for(provider)
         try:
-            raw    = await asyncio.to_thread(_sync_generate, client, model, prompt, use_search)
+            raw    = await asyncio.to_thread(_sync_generate, provider, client, model, prompt, use_search)
             result = _extract_json(raw)
             if "parse_error" not in result:
                 _response_cache[key] = result
@@ -643,8 +712,10 @@ async def run_coach_pipeline(request: CoachRequest) -> dict:
             _track_timing(bucket, elapsed)
             if use_search: _stats["search_calls"] += 1
             else:          _stats["no_search_calls"] += 1
+            _stats[f"{provider}_calls"] = _stats.get(f"{provider}_calls", 0) + 1
             _log_request(request, searched=use_search, cache_hit=False, elapsed_ms=elapsed)
-            print(f"[pipeline] {elapsed}ms  model={model}  search={use_search}  key=…{api_key[-6:]}")
+            label = provider if provider == "gemini" else f"compat:{settings.compat_label()}"
+            print(f"[pipeline] {elapsed}ms  provider={label}  model={model}  search={use_search}  key=…{api_key[-6:]}")
             return result
         except Exception as e:
             last_error = e
@@ -657,12 +728,12 @@ async def run_coach_pipeline(request: CoachRequest) -> dict:
             if attempt >= len(_RETRY_BACKOFF) or not retryable:
                 break
 
-            # A different key already free? Switch to it without waiting.
+            # A different key (possibly a different provider) already free? Switch without waiting.
             now = time.monotonic()
-            key_available = any(_key_cooldowns.get(k, 0) <= now for k, _ in _client_pool)
+            key_available = any(_key_cooldowns.get(k, 0) <= now for k in _all_keys())
             delay = 0.0 if (_is_rate_limit(e) and key_available) else _RETRY_BACKOFF[attempt]
 
-            print(f"[retry] attempt {attempt + 1} failed ({str(e)[:100]}) — retrying in {delay}s")
+            print(f"[retry] attempt {attempt + 1} ({provider}) failed ({str(e)[:100]}) — retrying in {delay}s")
             if delay:
                 await asyncio.sleep(delay)
 
@@ -676,7 +747,7 @@ async def run_coach_pipeline(request: CoachRequest) -> dict:
 
 # ── Streaming pipeline ────────────────────────────────────────────────────────
 
-async def _drain_stream_once(client, model, prompt, use_search):
+async def _drain_stream_once(provider, client, model, prompt, use_search):
     """Run one streaming attempt.
 
     Text is accumulated rather than forwarded so that a failure arriving before
@@ -687,7 +758,7 @@ async def _drain_stream_once(client, model, prompt, use_search):
     """
     loop = asyncio.get_running_loop()
     queue: asyncio.Queue = asyncio.Queue()
-    loop.run_in_executor(None, _sync_stream, client, model, prompt, use_search, queue, loop)
+    loop.run_in_executor(None, _sync_stream, provider, client, model, prompt, use_search, queue, loop)
 
     chunks: list[str] = []
     error = None
@@ -719,17 +790,18 @@ async def run_coach_pipeline_stream(request: CoachRequest):
     use_search = _should_search(request)
     prompt = _build_prompt(request)
 
-    _init_pool()
+    _init_pools()
     chunks: list[str] = []
     last_error = None
+    last_provider = None
 
-    # Retry transient model overloads with backoff, and fail over to another API
-    # key on rate limits. Previously a single 503 from Gemini ended the request
-    # immediately — the streaming path had none of the failover the blocking
-    # path already had.
+    # Retry transient model overloads with backoff, and fail over to another
+    # key — possibly a different provider — on rate limits.
     for attempt in range(len(_RETRY_BACKOFF) + 1):
-        api_key, client = _get_best_pair()
-        chunks, err = await _drain_stream_once(client, settings.LLM_MODEL, prompt, use_search)
+        provider, api_key, client = _pick_candidate(use_search)
+        last_provider = provider
+        model = _model_for(provider)
+        chunks, err = await _drain_stream_once(provider, client, model, prompt, use_search)
 
         if err is None:
             last_error = None
@@ -746,12 +818,12 @@ async def run_coach_pipeline_stream(request: CoachRequest):
         if attempt >= len(_RETRY_BACKOFF) or not retryable:
             break
 
-        # If a different key is already free, switch to it without waiting.
+        # If a different key (possibly a different provider) is already free, switch without waiting.
         now = time.monotonic()
-        key_available = any(_key_cooldowns.get(k, 0) <= now for k, _ in _client_pool)
+        key_available = any(_key_cooldowns.get(k, 0) <= now for k in _all_keys())
         delay = 0.0 if (_is_rate_limit(exc) and key_available) else _RETRY_BACKOFF[attempt]
 
-        print(f"[retry] attempt {attempt + 1} failed ({err[:100]}) — retrying in {delay}s")
+        print(f"[retry] attempt {attempt + 1} ({provider}) failed ({err[:100]}) — retrying in {delay}s")
         yield f"data: {json.dumps({'type': 'status', 'message': 'Model busy - retrying...'})}\n\n"
         if delay:
             await asyncio.sleep(delay)
@@ -774,8 +846,10 @@ async def run_coach_pipeline_stream(request: CoachRequest):
         _stats["search_calls"] += 1
     else:
         _stats["no_search_calls"] += 1
+    _stats[f"{last_provider}_calls"] = _stats.get(f"{last_provider}_calls", 0) + 1
     _log_request(request, searched=use_search, cache_hit=False, elapsed_ms=elapsed)
     if "parse_error" not in result:
         _response_cache[key] = result
-    print(f"[pipeline] stream {elapsed}ms  search={use_search}")
+    label = last_provider if last_provider == "gemini" else f"compat:{settings.compat_label()}"
+    print(f"[pipeline] stream {elapsed}ms  provider={label}  search={use_search}")
     yield f"data: {json.dumps({'type': 'result', 'data': result})}\n\n"

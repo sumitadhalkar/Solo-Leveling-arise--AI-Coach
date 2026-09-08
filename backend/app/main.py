@@ -7,17 +7,23 @@ import os
 
 from app.api.router import api_router
 from app.workers.snapshot import snapshot_worker
+from app.workers.roster_sync import roster_sync_worker
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    task = asyncio.create_task(snapshot_worker())
+    tasks = [
+        asyncio.create_task(snapshot_worker()),
+        asyncio.create_task(roster_sync_worker()),
+    ]
     yield
-    task.cancel()
-    try:
-        await task
-    except asyncio.CancelledError:
-        pass
+    for task in tasks:
+        task.cancel()
+    for task in tasks:
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
 
 
 app = FastAPI(

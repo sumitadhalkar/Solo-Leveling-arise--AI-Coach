@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HUNTERS, TIER_STYLE, EL_COLOR, PULL_STYLE } from '../data/hunters';
+import { TIER_STYLE, EL_COLOR, PULL_STYLE } from '../data/hunters';
+import { useHunterCatalog } from '../services/hunterCatalog';
 import Icon from '../components/Icon';
 
 const TREND_ICON = { rising: 'arrowUp', falling: 'arrowDown', stable: 'minus' };
@@ -52,6 +53,13 @@ function HunterProfile({ hunter, onBack }) {
       transition={{ duration: 0.3 }}
     >
       <button className="back-btn" onClick={onBack}><Icon name="chevronRight" size={13} /> Back to Hunters</button>
+
+      {hunter.auto_generated && (
+        <div className="hp-auto-notice">
+          <Icon name="search" size={13} />
+          Auto-discovered from a live web search after this hunter's release — details may need verification.
+        </div>
+      )}
 
       {/* Profile header */}
       <div className="hp-header" style={{ borderColor: elColor }}>
@@ -178,6 +186,11 @@ function HunterCard({ hunter, onClick }) {
       <div className="hc-el" style={{ color: elColor }}>
         <Icon name={hunter.element} size={20} />
       </div>
+      {hunter.auto_generated && (
+        <span className="hc-auto-badge" title="Auto-discovered from a live web search — not yet manually verified">
+          NEW · unverified
+        </span>
+      )}
       <div className="hc-name">{hunter.name}</div>
       <div className="hc-class">{hunter.class}</div>
       <div className="hc-tier-row">
@@ -209,6 +222,7 @@ const cardAnim = {
 };
 
 export default function HuntersPage() {
+  const { hunters: HUNTERS, meta } = useHunterCatalog();
   const [elFilter, setElFilter]     = useState('all');
   const [tierFilter, setTierFilter] = useState('all');
   const [search, setSearch]         = useState('');
@@ -240,7 +254,14 @@ export default function HuntersPage() {
           >
             <div className="hunters-header">
               <h2 className="hunters-title">Hunter Database</h2>
-              <p className="hunters-sub">{HUNTERS.length} hunters — click any card for full profile, builds, and team synergy</p>
+              <p className="hunters-sub">
+                {HUNTERS.length} hunters — click any card for full profile, builds, and team synergy
+                {meta?.autoAdded?.length > 0 && (
+                  <span className="snapshot-confidence" title="Auto-discovered from a live web search since this build shipped">
+                    {meta.autoAdded.length} auto-synced
+                  </span>
+                )}
+              </p>
             </div>
 
             {/* Filters */}

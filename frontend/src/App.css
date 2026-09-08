@@ -1180,6 +1180,7 @@
 .hunter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
 
 .hunter-card {
+  position: relative;
   background: var(--card-solid);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -1194,6 +1195,34 @@
   border-top: 2px solid var(--el-accent, var(--border));
 }
 .hunter-card:hover { border-color: var(--el-accent, var(--border-md)); }
+
+/* Roster-sync badges — auto-discovered hunters are flagged rather than
+   presented with the same confidence as a hand-verified entry. */
+.hc-auto-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--el-wind);
+  background: rgba(79,194,186,0.12);
+  border: 1px solid rgba(79,194,186,0.32);
+  border-radius: 3px;
+  padding: 2px 6px;
+}
+.hp-auto-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--el-wind);
+  background: rgba(79,194,186,0.08);
+  border: 1px solid rgba(79,194,186,0.24);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin-bottom: 14px;
+}
 
 .hc-el { display: flex; margin-bottom: 3px; }
 .hc-name { font-size: 12px; font-weight: 700; color: var(--text); line-height: 1.3; }

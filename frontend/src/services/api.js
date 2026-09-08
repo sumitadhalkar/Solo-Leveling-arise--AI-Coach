@@ -131,3 +131,5 @@ export const postFeedback = (payload) =>
   req('/coach/feedback', { method: 'POST', body: JSON.stringify(payload) });
 
 export const getSnapshot = () => req('/meta/snapshot');
+
+export const getHunters = () => req('/meta/hunters');

@@ -3,6 +3,11 @@ Background worker: refreshes meta_snapshot.json every 30 minutes.
 Sources are explicitly weighted — Netmarble is authoritative, arise.tools is
 meta reference, Reddit is community opinion only. The snapshot is kept compact
 (no full patch notes, no history) so injecting it into every prompt is cheap.
+
+Deliberately Gemini-only: this worker's whole job is grounding on live Google
+Search results, and NVIDIA's OpenAI-compatible endpoint (used elsewhere in the
+pipeline for ordinary generation, see app/rag/pipeline.py) has no equivalent
+search-grounding tool. There's nothing to fail over to here.
 """
 import asyncio
 import json
@@ -91,54 +96,64 @@ def _extract_json(text: str) -> dict:
 
 
 async def refresh_snapshot() -> bool:
-    keys = [k for k in [settings.GEMINI_API_KEY, settings.GEMINI_API_KEY_2] if k]
+    keys = settings.gemini_keys()
     if not keys:
         return False
 
-    client = genai.Client(api_key=keys[0])
     config = types.GenerateContentConfig(
         tools=[types.Tool(google_search=types.GoogleSearch())]
     )
 
-    def _call():
+    def _call(client: genai.Client):
         return client.models.generate_content(
             model="gemini-3.6-flash",
             contents=_PROMPT,
             config=config,
         )
 
-    try:
-        response = await asyncio.to_thread(_call)
-        data = _extract_json(response.text)
-        if not data:
-            print("[snapshot] Empty response — skipping write")
-            return False
+    # Any number of keys may be configured (comma-separated in either
+    # GEMINI_API_KEY or GEMINI_API_KEY_2) — try each in turn rather than
+    # giving up after the first, so a rate-limited key doesn't stall every
+    # refresh cycle when other keys are available.
+    last_error = None
+    for i, key in enumerate(keys):
+        try:
+            client = genai.Client(api_key=key)
+            response = await asyncio.to_thread(_call, client)
+            data = _extract_json(response.text)
+            if not data:
+                print(f"[snapshot] Empty response (key …{key[-6:]}) — skipping write")
+                return False
 
-        # Enforce compactness — truncate oversized arrays
-        for section in ("tier_ss", "tier_splus", "tier_s", "upcoming_banners"):
-            meta = data.get("meta_reference", {})
-            if isinstance(meta.get(section), list):
-                meta[section] = meta[section][:8]
-        if isinstance(data.get("community_opinion", {}).get("hot_topics"), list):
-            data["community_opinion"]["hot_topics"] = \
-                data["community_opinion"]["hot_topics"][:5]
+            # Enforce compactness — truncate oversized arrays
+            for section in ("tier_ss", "tier_splus", "tier_s", "upcoming_banners"):
+                meta = data.get("meta_reference", {})
+                if isinstance(meta.get(section), list):
+                    meta[section] = meta[section][:8]
+            if isinstance(data.get("community_opinion", {}).get("hot_topics"), list):
+                data["community_opinion"]["hot_topics"] = \
+                    data["community_opinion"]["hot_topics"][:5]
 
-        data["last_updated"] = datetime.now(timezone.utc).isoformat()
-        data["confidence"]   = _compute_confidence(data)
+            data["last_updated"] = datetime.now(timezone.utc).isoformat()
+            data["confidence"]   = _compute_confidence(data)
 
-        SNAPSHOT_PATH.write_text(json.dumps(data, indent=2, ensure_ascii=False))
+            SNAPSHOT_PATH.write_text(json.dumps(data, indent=2, ensure_ascii=False))
 
-        auth = data.get("authoritative", {})
-        print(
-            f"[snapshot] Updated — patch={auth.get('patch', '?')}  "
-            f"confidence={data['confidence']:.0%}  "
-            f"size={len(SNAPSHOT_PATH.read_bytes())}B"
-        )
-        return True
+            auth = data.get("authoritative", {})
+            print(
+                f"[snapshot] Updated — patch={auth.get('patch', '?')}  "
+                f"confidence={data['confidence']:.0%}  "
+                f"size={len(SNAPSHOT_PATH.read_bytes())}B  key=…{key[-6:]}"
+            )
+            return True
 
-    except Exception as e:
-        print(f"[snapshot] Error during refresh: {e}")
-        return False
+        except Exception as e:
+            last_error = e
+            print(f"[snapshot] Key …{key[-6:]} failed ({e}) — "
+                  f"{'trying next key' if i + 1 < len(keys) else 'no keys left'}")
+
+    print(f"[snapshot] All {len(keys)} key(s) failed — last error: {last_error}")
+    return False
 
 
 async def snapshot_worker():

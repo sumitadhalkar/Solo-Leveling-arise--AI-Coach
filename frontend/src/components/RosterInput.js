@@ -1,64 +1,9 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { EL_COLOR, EL_BADGE } from '../data/hunters';
+import { useHunterCatalog } from '../services/hunterCatalog';
 import { saveRoster } from '../services/memory';
 import Icon from './Icon';
-
-// ── Complete hunter roster (June 2026) ──────────────────────────────────────
-const HUNTER_ELEMENT = {
-  // Light
-  'Cha Hae-In':               'light',
-  'Min Byung-Gu':             'light',
-  'Go Gunhee':                'light',
-  'Thomas Andre':             'light',
-  'Akari':                    'light',
-  'Antoine Martinez':         'light',
-  // Water
-  'Alicia':                   'water',
-  'Emma':                     'water',
-  'Park Heejin':              'water',
-  'Elena Renault':            'water',
-  'Mary Lane':                'water',
-  'Cha Hae-In [Pure Sword]':  'water',
-  // Fire
-  'Lim Tae-Gyu':              'fire',
-  'Choi Jong-In':             'fire',
-  'Hwang Dongsuk':            'fire',
-  'Tawata Kanae':             'fire',
-  'Liu Zhigang':              'fire',
-  'Christopher Reed':         'fire',
-  'Gina':                     'fire',
-  // Earth
-  'Baek Yoonho':              'earth',
-  // Wind
-  'Woo Jinchul':              'wind',
-  'Lee Joohee':               'wind',
-  'Amamiya Mirei':            'wind',
-  'Sugamoto Reggie':          'wind',
-  'Leonard':                  'wind',
-  'Jenna':                    'wind',
-  // Dark
-  'Sung Jin-Woo':             'dark',
-  'Charlotte':                'dark',
-  'Minnie':                   'dark',
-  'Seorin':                   'dark',
-  'Sian Halat':               'dark',
-  'Son Kihoon':               'dark',
-};
-
-const KNOWN_HUNTERS = Object.keys(HUNTER_ELEMENT).sort();
-
-const EL_COLOR = {
-  light: 'var(--el-light)',
-  water: 'var(--el-water)',
-  fire:  'var(--el-fire)',
-  earth: 'var(--el-earth)',
-  wind:  'var(--el-wind)',
-  dark:  'var(--el-dark)',
-};
-
-const EL_BADGE = {
-  light: '☀', water: '💧', fire: '🔥', earth: '🌿', wind: '🌀', dark: '🌑',
-};
 
 const STAGE_OPTS = [
   { value: 'new',         label: 'New Account' },
@@ -67,14 +12,6 @@ const STAGE_OPTS = [
   { value: 'competitive', label: 'Competitive' },
 ];
 
-const EMPTY = {
-  name: KNOWN_HUNTERS[0],
-  advancement: 0,
-  weapon: 'SSR',
-  weapon_advancement: 0,
-  power: '',
-};
-
 export default function RosterInput({
   hunters, setHunters,
   battlePower, setBattlePower,
@@ -82,14 +19,38 @@ export default function RosterInput({
   progressionStage, setProgressionStage,
   title = 'Your Roster',
 }) {
-  const [form, setForm] = useState(EMPTY);
+  // Aliased — this hook's `hunters` (the full catalog) and this component's
+  // `hunters` prop (the player's *owned* roster) are different things.
+  const { hunters: catalog } = useHunterCatalog();
+
+  // Same catalog that powers the Hunters Database page, so a hunter the
+  // roster_sync worker discovers is selectable here too — no separate,
+  // easily-stale hardcoded list to maintain.
+  const { knownHunters, hunterElement } = useMemo(() => {
+    const elementMap = {};
+    for (const h of catalog) elementMap[h.name] = h.element;
+    return {
+      knownHunters: catalog.map(h => h.name).sort(),
+      hunterElement: elementMap,
+    };
+  }, [catalog]);
+
+  const emptyForm = () => ({
+    name: knownHunters[0] || '',
+    advancement: 0,
+    weapon: 'SSR',
+    weapon_advancement: 0,
+    power: '',
+  });
+
+  const [form, setForm] = useState(emptyForm);
 
   function addHunter() {
     if (!form.name) return;
     const updated = [...hunters, { ...form, power: Number(form.power) || 0 }];
     setHunters(updated);
     saveRoster(updated);
-    setForm(EMPTY);
+    setForm(emptyForm());
   }
 
   function removeHunter(i) {
@@ -149,7 +110,7 @@ export default function RosterInput({
         {hunters.length > 0 && (
           <div className="hunter-list">
             {hunters.map((h, i) => {
-              const el = HUNTER_ELEMENT[h.name] || 'light';
+              const el = hunterElement[h.name] || 'light';
               return (
                 <motion.div
                   key={`${h.name}-${i}`}
@@ -185,9 +146,9 @@ export default function RosterInput({
           onChange={e => set('name', e.target.value)}
           style={{ gridColumn: '1 / -1' }}
         >
-          {KNOWN_HUNTERS.map(n => (
+          {knownHunters.map(n => (
             <option key={n} value={n}>
-              {EL_BADGE[HUNTER_ELEMENT[n]]} {n}
+              {EL_BADGE[hunterElement[n]]} {n}
             </option>
           ))}
         </select>
