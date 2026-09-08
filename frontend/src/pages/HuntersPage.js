@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TIER_STYLE, EL_COLOR, PULL_STYLE } from '../data/hunters';
 import { useHunterCatalog } from '../services/hunterCatalog';
 import Icon from '../components/Icon';
+import HunterAvatar from '../components/HunterAvatar';
 
 const TREND_ICON = { rising: 'arrowUp', falling: 'arrowDown', stable: 'minus' };
 
@@ -66,14 +67,17 @@ function HunterProfile({ hunter, onBack }) {
       {/* Profile header */}
       <div className="hp-header" style={{ borderColor: elColor }}>
         <div className="hp-header-left">
-          <div className="hp-el-badge" style={{ color: elColor }}>
-            <Icon name={hunter.element} size={13} /> {hunter.element}
-          </div>
-          <h2 className="hp-name">{hunter.name}</h2>
-          <div className="hp-meta-row">
-            <span className="hp-class">{hunter.class}</span>
-            <span className="hp-rarity">{hunter.rarity}</span>
-            <span className="hp-role">{hunter.role}</span>
+          <HunterAvatar name={hunter.name} element={hunter.element} size={64} />
+          <div>
+            <div className="hp-el-badge" style={{ color: elColor }}>
+              <Icon name={hunter.element} size={13} /> {hunter.element}
+            </div>
+            <h2 className="hp-name">{hunter.name}</h2>
+            <div className="hp-meta-row">
+              <span className="hp-class">{hunter.class}</span>
+              <span className="hp-rarity">{hunter.rarity}</span>
+              <span className="hp-role">{hunter.role}</span>
+            </div>
           </div>
         </div>
         <div className="hp-header-right">
@@ -185,8 +189,9 @@ function HunterCard({ hunter, onClick }) {
       whileTap={{ scale: 0.97 }}
       style={{ '--el-accent': elColor }}
     >
+      <HunterAvatar name={hunter.name} element={hunter.element} size={52} />
       <div className="hc-el" style={{ color: elColor }}>
-        <Icon name={hunter.element} size={20} />
+        <Icon name={hunter.element} size={13} />
       </div>
       {hunter.auto_generated && (
         <span

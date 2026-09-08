@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { EL_COLOR, EL_BADGE } from '../data/hunters';
 import { useHunterCatalog } from '../services/hunterCatalog';
 import { saveRoster } from '../services/memory';
-import Icon from './Icon';
+import HunterAvatar from './HunterAvatar';
 
 const STAGE_OPTS = [
   { value: 'new',         label: 'New Account' },
@@ -121,9 +121,7 @@ export default function RosterInput({
                   exit={{ opacity: 0, x: -12 }}
                   transition={{ duration: 0.18 }}
                 >
-                  <span className="hunter-el-badge" style={{ color: EL_COLOR[el] }}>
-                    <Icon name={el} size={13} />
-                  </span>
+                  <HunterAvatar name={h.name} element={el} size={22} />
                   <span className="hunter-name">{h.name}</span>
                   <span className="hunter-badge">A{h.advancement}</span>
                   <span className="hunter-badge">{h.weapon}+{h.weapon_advancement}</span>
