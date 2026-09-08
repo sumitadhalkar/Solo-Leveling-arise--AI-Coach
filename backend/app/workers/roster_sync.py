@@ -20,9 +20,22 @@ not hourly) and is deliberately conservative: a malformed or incomplete
 profile is discarded rather than merged, because a wrong build guide is worse
 than a temporarily-missing hunter.
 
-Deliberately Gemini-only, same reasoning as the meta snapshot worker: this is
-all live Google Search grounding, and NVIDIA's endpoint (used elsewhere for
-ordinary generation) has no equivalent — nothing to fail over to here.
+Primarily Gemini, because this is fundamentally live Google Search grounding
+and the compat provider (NVIDIA by default) has no equivalent tool. But
+Gemini's free tier does run out — when every configured Gemini key is
+exhausted, this worker falls back to the compat provider as a best-effort,
+UNGROUNDED attempt (that model's own training data, not a verified live
+source) rather than doing nothing. Every hunter added this way is tagged
+`source: "compat_ungrounded"` in addition to the usual auto_generated/
+verified=false flags, so the frontend can warn more strongly than for a
+normally-discovered (Gemini-grounded) entry.
+
+This fallback is deliberately NOT applied to patch version / active banner
+facts (see the meta snapshot worker) — a wrong guess there would get injected
+into every coaching prompt as confident "current" context with no way to
+sanity-check it, which is worse than skipping the cycle. Hunter names and
+profiles at least partially validate against a schema (see _validate_profile);
+raw facts like "what patch is live today" don't have an equivalent check.
 """
 import asyncio
 import json
@@ -32,6 +45,7 @@ from pathlib import Path
 
 from google import genai
 from google.genai import types
+from openai import OpenAI
 
 from app.core.config import settings
 
@@ -168,29 +182,69 @@ def _validate_profile(expected_name: str, profile: dict) -> bool:
     return True
 
 
-async def _generate_with_failover(prompt: str, keys: list[str]):
-    """Try each configured key in turn, returning the first success. Any
-    number of keys may be configured (comma-separated in either
-    GEMINI_API_KEY or GEMINI_API_KEY_2) — a rate-limited key shouldn't stall
-    discovery or profile generation when others are available."""
+async def _generate_gemini(prompt: str, keys: list[str]) -> str:
+    """Try each configured Gemini key in turn (grounded, live Google Search).
+    Any number of keys may be configured (comma-separated in either
+    GEMINI_API_KEY or GEMINI_API_KEY_2). Raises if every key fails."""
     config = types.GenerateContentConfig(tools=[types.Tool(google_search=types.GoogleSearch())])
-    last_error: Exception = RuntimeError("no keys configured")
+    last_error: Exception = RuntimeError("no Gemini keys configured")
     for i, key in enumerate(keys):
         try:
             client = genai.Client(api_key=key)
-            return await asyncio.to_thread(
+            resp = await asyncio.to_thread(
                 client.models.generate_content, model="gemini-3.6-flash", contents=prompt, config=config
             )
+            return resp.text
         except Exception as e:
             last_error = e
-            print(f"[roster_sync] Key …{key[-6:]} failed ({e}) — "
-                  f"{'trying next key' if i + 1 < len(keys) else 'no keys left'}")
+            print(f"[roster_sync] Gemini key …{key[-6:]} failed ({e}) — "
+                  f"{'trying next key' if i + 1 < len(keys) else 'no Gemini keys left'}")
     raise last_error
+
+
+async def _generate_compat(prompt: str) -> str:
+    """Best-effort fallback once every Gemini key has failed — the configured
+    OpenAI-compatible provider (NVIDIA by default), with NO live search
+    grounding. Reflects that model's own training data, not a verified
+    current source. Raises if unconfigured or every compat key fails."""
+    keys = settings.compat_keys()
+    if not keys:
+        raise RuntimeError("no compat provider configured")
+    last_error: Exception = RuntimeError("no compat keys configured")
+    for i, key in enumerate(keys):
+        try:
+            client = OpenAI(api_key=key, base_url=settings.compat_base_url())
+            resp = await asyncio.to_thread(
+                client.chat.completions.create,
+                model=settings.compat_model(),
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.4,
+            )
+            return resp.choices[0].message.content or ""
+        except Exception as e:
+            last_error = e
+            print(f"[roster_sync] Compat key …{key[-6:]} failed ({e}) — "
+                  f"{'trying next key' if i + 1 < len(keys) else 'no compat keys left'}")
+    raise last_error
+
+
+async def _generate_with_failover(prompt: str, gemini_keys: list[str]) -> tuple[str, str]:
+    """Gemini (grounded) first; only if EVERY Gemini key fails does this fall
+    back to the compat provider (ungrounded). Returns (text, source) where
+    source is "gemini_grounded" or "compat_ungrounded" — callers use this to
+    flag ungrounded results more cautiously than a normal discovery."""
+    try:
+        return await _generate_gemini(prompt, gemini_keys), "gemini_grounded"
+    except Exception as e:
+        print(f"[roster_sync] All {len(gemini_keys)} Gemini key(s) failed ({e}) — "
+              f"falling back to compat provider ({settings.compat_label()})")
+    text = await _generate_compat(prompt)  # let this raise too if unconfigured/also failing
+    return text, "compat_ungrounded"
 
 
 async def refresh_hunters() -> bool:
     keys = settings.gemini_keys()
-    if not keys:
+    if not keys and not settings.compat_keys():
         return False
 
     seed = _load_seed()
@@ -200,14 +254,20 @@ async def refresh_hunters() -> bool:
     auto_added_names: list[str] = list(live.get("auto_added", []))
 
     try:
-        discovery = await _generate_with_failover(_DISCOVERY_PROMPT, keys)
-        data = _extract_json(discovery.text)
+        discovery_text, discovery_source = await _generate_with_failover(_DISCOVERY_PROMPT, keys)
+        data = _extract_json(discovery_text)
         official_names = (data or {}).get("hunters", [])
         if not isinstance(official_names, list):
             official_names = []
     except Exception as e:
-        print(f"[roster_sync] Discovery search failed on all {len(keys)} key(s): {e}")
+        print(f"[roster_sync] Discovery failed on every configured provider: {e}")
         return False
+
+    if discovery_source == "compat_ungrounded":
+        print("[roster_sync] WARNING: discovery ran without live search grounding "
+              "(every Gemini key was unavailable) — the resulting hunter list "
+              "reflects the fallback model's training data, not a verified "
+              "current source, and may include names it misremembers.")
 
     missing = [
         n for n in official_names
@@ -228,13 +288,19 @@ async def refresh_hunters() -> bool:
     added = []
     for name in missing:
         try:
-            resp = await _generate_with_failover(_PROFILE_PROMPT_TEMPLATE.format(name=name), keys)
-            profile = _extract_json(resp.text)
+            text, source = await _generate_with_failover(_PROFILE_PROMPT_TEMPLATE.format(name=name), keys)
+            profile = _extract_json(text)
             if not _validate_profile(name, profile):
                 print(f"[roster_sync] Skipped '{name}' — profile failed validation")
                 continue
             profile["auto_generated"] = True
             profile["verified"]       = False
+            profile["source"]         = source  # "gemini_grounded" | "compat_ungrounded"
+            # An ungrounded discovery OR an ungrounded profile means nothing
+            # about this entry was checked against a live source at all —
+            # flag it more strongly than the normal unverified badge.
+            if source == "compat_ungrounded" or discovery_source == "compat_ungrounded":
+                profile["low_confidence"] = True
             profile["discovered_at"]  = datetime.now(timezone.utc).isoformat()
             known.append(profile)
             auto_added_names.append(profile["name"])

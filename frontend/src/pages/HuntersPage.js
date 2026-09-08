@@ -55,9 +55,11 @@ function HunterProfile({ hunter, onBack }) {
       <button className="back-btn" onClick={onBack}><Icon name="chevronRight" size={13} /> Back to Hunters</button>
 
       {hunter.auto_generated && (
-        <div className="hp-auto-notice">
+        <div className={`hp-auto-notice${hunter.low_confidence ? ' low-confidence' : ''}`}>
           <Icon name="search" size={13} />
-          Auto-discovered from a live web search after this hunter's release — details may need verification.
+          {hunter.low_confidence
+            ? "Added while our live-search provider was unavailable — this profile was NOT verified against any current source and may be inaccurate or, in rare cases, mistaken entirely."
+            : "Auto-discovered from a live web search after this hunter's release — details may need verification."}
         </div>
       )}
 
@@ -187,8 +189,13 @@ function HunterCard({ hunter, onClick }) {
         <Icon name={hunter.element} size={20} />
       </div>
       {hunter.auto_generated && (
-        <span className="hc-auto-badge" title="Auto-discovered from a live web search — not yet manually verified">
-          NEW · unverified
+        <span
+          className={`hc-auto-badge${hunter.low_confidence ? ' low-confidence' : ''}`}
+          title={hunter.low_confidence
+            ? "Added without live source verification — may be inaccurate or mistaken"
+            : "Auto-discovered from a live web search — not yet manually verified"}
+        >
+          {hunter.low_confidence ? 'NEW · unconfirmed' : 'NEW · unverified'}
         </span>
       )}
       <div className="hc-name">{hunter.name}</div>

@@ -1211,6 +1211,13 @@
   border-radius: 3px;
   padding: 2px 6px;
 }
+/* Discovered without any live-source verification at all (Gemini exhausted,
+   fell back to an ungrounded provider) — reads as a warning, not just a note. */
+.hc-auto-badge.low-confidence {
+  color: var(--danger);
+  background: rgba(224,97,95,0.12);
+  border-color: rgba(224,97,95,0.35);
+}
 .hp-auto-notice {
   display: flex;
   align-items: center;
@@ -1222,6 +1229,11 @@
   border-radius: var(--radius-sm);
   padding: 8px 12px;
   margin-bottom: 14px;
+}
+.hp-auto-notice.low-confidence {
+  color: var(--danger);
+  background: rgba(224,97,95,0.08);
+  border-color: rgba(224,97,95,0.28);
 }
 
 .hc-el { display: flex; margin-bottom: 3px; }
