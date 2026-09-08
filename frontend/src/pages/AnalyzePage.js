@@ -3,7 +3,9 @@ import CoachingModeSelector from '../components/CoachingModeSelector';
 import GameModeSelector from '../components/GameModeSelector';
 import RosterInput from '../components/RosterInput';
 import StrategyOutput from '../components/StrategyOutput';
+import SidebarHero from '../components/SidebarHero';
 import Icon from '../components/Icon';
+import heroImage from '../assets/solo2.jpg';
 
 const MODE_LABEL = {
   strategy:           'Strategy',
@@ -44,6 +46,8 @@ export default function AnalyzePage({
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
       >
+        <SidebarHero image={heroImage} theme="analyze" />
+
         <div className="page-mode-header analyze">
           <span className="page-mode-icon"><Icon name="insight" size={19} /></span>
           <div>

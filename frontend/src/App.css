@@ -927,6 +927,30 @@
 .coaching-tile-label { font-size: 9.5px; font-weight: 600; color: var(--text-dim); line-height: 1.2; }
 .coaching-tile.active .coaching-tile-label { color: var(--gold-light); }
 
+/* Themed hero banner — top of sidebar on Analyze & Pull pages */
+.sidebar-hero {
+  /* Cancel the sidebar's own padding so the image bleeds to its edges. */
+  margin: -20px -18px 0;
+  height: 170px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center 12%;
+  position: relative;
+}
+.sidebar-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.sidebar-hero.analyze::before { background: linear-gradient(100deg, rgba(111,163,240,0.16), transparent 65%); }
+.sidebar-hero.pull::before    { background: linear-gradient(100deg, rgba(201,162,39,0.18), transparent 65%); }
+.sidebar-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10,10,22,0) 40%, var(--panel) 96%);
+}
+
 /* Report / mode header on Analyze & Pull pages */
 .page-mode-header {
   display: flex;

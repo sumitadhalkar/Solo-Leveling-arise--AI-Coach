@@ -1,7 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import RosterInput from '../components/RosterInput';
 import StrategyOutput from '../components/StrategyOutput';
+import SidebarHero from '../components/SidebarHero';
 import Icon from '../components/Icon';
+import heroImage from '../assets/solo.png';
 
 const PULL_EXAMPLES = [
   'Should I pull Liu Zhigang?',
@@ -31,6 +33,8 @@ export default function PullAdvisorPage({
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
       >
+        <SidebarHero image={heroImage} theme="pull" />
+
         <div className="page-mode-header pull">
           <span className="page-mode-icon"><Icon name="target" size={19} /></span>
           <div>
@@ -84,6 +88,7 @@ export default function PullAdvisorPage({
         </div>
 
         <RosterInput
+          title="Your Account"
           hunters={hunters}           setHunters={setHunters}
           battlePower={battlePower}   setBattlePower={setBattlePower}
           jinwooPower={jinwooPower}   setJinwooPower={setJinwooPower}

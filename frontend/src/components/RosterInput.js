@@ -80,6 +80,7 @@ export default function RosterInput({
   battlePower, setBattlePower,
   jinwooPower, setJinwooPower,
   progressionStage, setProgressionStage,
+  title = 'Your Roster',
 }) {
   const [form, setForm] = useState(EMPTY);
 
@@ -101,7 +102,7 @@ export default function RosterInput({
 
   return (
     <div className="card">
-      <div className="card-title">Your Roster</div>
+      <div className="card-title">{title}</div>
 
       {/* Battle Power + Jin-Woo */}
       <div className="metrics-row">
