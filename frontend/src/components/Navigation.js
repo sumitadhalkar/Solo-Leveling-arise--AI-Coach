@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion';
+import Icon from './Icon';
 
 const TABS = [
-  { key: 'home',    icon: '🏠', label: 'Home'         },
-  { key: 'analyze', icon: '🧠', label: 'Analyze Team'  },
-  { key: 'pull',    icon: '🎯', label: 'Pull Advisor'  },
-  { key: 'hunters', icon: '📖', label: 'Hunters'       },
+  { key: 'home',    icon: 'home',    label: 'Home'         },
+  { key: 'analyze', icon: 'insight', label: 'Analyze Team'  },
+  { key: 'pull',    icon: 'target',  label: 'Pull Advisor'  },
+  { key: 'hunters', icon: 'book',    label: 'Hunters'       },
 ];
 
 export default function Navigation({ view, onNavigate }) {
@@ -23,7 +24,7 @@ export default function Navigation({ view, onNavigate }) {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >
-            <span className="nav-tab-icon">{icon}</span>
+            <span className="nav-tab-icon"><Icon name={icon} size={15} /></span>
             <span className="nav-tab-label">{label}</span>
             {view === key && (
               <motion.div

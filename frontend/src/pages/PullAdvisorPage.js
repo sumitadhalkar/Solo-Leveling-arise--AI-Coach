@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import RosterInput from '../components/RosterInput';
 import StrategyOutput from '../components/StrategyOutput';
+import Icon from '../components/Icon';
 
 const PULL_EXAMPLES = [
   'Should I pull Liu Zhigang?',
@@ -18,7 +19,7 @@ export default function PullAdvisorPage({
   progressionStage, setProgressionStage,
   gameMode, setGameMode, boss, setBoss,
   coachingMode, setCoachingMode,
-  strategy, loading, error, streamChars,
+  strategy, loading, error, streamChars, statusMessage,
   handleAnalyze, handleFeedback,
   onNavigate,
 }) {
@@ -31,7 +32,7 @@ export default function PullAdvisorPage({
         transition={{ duration: 0.35, ease: 'easeOut' }}
       >
         <div className="page-mode-header pull">
-          <span className="page-mode-icon">🎯</span>
+          <span className="page-mode-icon"><Icon name="target" size={19} /></span>
           <div>
             <div className="page-mode-title">Pull Advisor</div>
             <div className="page-mode-sub">Banner decisions & resource management</div>
@@ -96,7 +97,7 @@ export default function PullAdvisorPage({
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          {loading ? 'Consulting Shadows…' : '🎯 Get Pull Advice'}
+          {loading ? 'Consulting Shadows…' : <><Icon name="target" size={16} /> Get Pull Advice</>}
         </motion.button>
 
         <AnimatePresence>
@@ -117,11 +118,20 @@ export default function PullAdvisorPage({
         <AnimatePresence mode="wait">
           {loading && (
             <motion.div key="loading" className="empty-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <div className="empty-glyph" style={{ color: 'var(--gold)' }}>◈</div>
+              <div className="empty-glyph" style={{ color: 'var(--gold)' }}><Icon name="diamond" size={40} /></div>
               <div className="empty-title">Consulting the Shadows</div>
               <div className="empty-desc">
                 Checking current &amp; upcoming banners against your account needs…
               </div>
+              {statusMessage && (
+                <motion.div
+                  className="status-msg"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  {statusMessage}
+                </motion.div>
+              )}
               {streamChars > 0 && (
                 <motion.div className="stream-indicator" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
                   <span className="stream-pulse" />
@@ -146,7 +156,7 @@ export default function PullAdvisorPage({
           )}
           {!loading && !strategy && (
             <motion.div key="empty" className="empty-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <div className="empty-glyph" style={{ color: 'var(--gold)' }}>🎯</div>
+              <div className="empty-glyph" style={{ color: 'var(--gold)' }}><Icon name="target" size={38} /></div>
               <div className="empty-title">Pull Advisor Ready</div>
               <div className="empty-desc">
                 Add your roster, type the hunter or banner name in the left panel, then hit{' '}

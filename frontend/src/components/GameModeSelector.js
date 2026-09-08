@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion';
+import Icon from './Icon';
 
 const MODES = {
-  'Workshop of Brilliant Light': { icon: '⚡', short: 'Workshop',    bosses: ['Vulcan', 'Ice Elf King', 'Shadow Monarch', 'Steel-Fanged Lycan'] },
-  'Battlefield of Time':          { icon: '⏳', short: 'Battlefield', bosses: ['Ant King', 'Iron Body Monku', 'Architect'] },
-  'Guild Boss':                   { icon: '🏛', short: 'Guild Boss',  bosses: ['Thomas Andre', 'Christopher Reed', 'Jonas'] },
-  'Encore Missions':              { icon: '🔁', short: 'Encore',      bosses: [] },
-  'Simulation Gate':              { icon: '🌀', short: 'Simulation',  bosses: [] },
+  'Workshop of Brilliant Light': { icon: 'zap',       short: 'Workshop',    bosses: ['Vulcan', 'Ice Elf King', 'Shadow Monarch', 'Steel-Fanged Lycan'] },
+  'Battlefield of Time':          { icon: 'hourglass', short: 'Battlefield', bosses: ['Ant King', 'Iron Body Monku', 'Architect'] },
+  'Guild Boss':                   { icon: 'temple',    short: 'Guild Boss',  bosses: ['Thomas Andre', 'Christopher Reed', 'Jonas'] },
+  'Encore Missions':              { icon: 'repeat',    short: 'Encore',      bosses: [] },
+  'Simulation Gate':              { icon: 'spiral',    short: 'Simulation',  bosses: [] },
 };
 
 export default function GameModeSelector({ gameMode, setGameMode, boss, setBoss }) {
@@ -29,7 +30,7 @@ export default function GameModeSelector({ gameMode, setGameMode, boss, setBoss 
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >
-            <span className="mode-tile-icon">{icon}</span>
+            <span className="mode-tile-icon"><Icon name={icon} size={18} /></span>
             <span className="mode-tile-name">{short}</span>
           </motion.button>
         ))}

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import './App.css';
-import PortalScene from './components/portal/PortalScene';
+import AppBackground from './components/AppBackground';
 import Navigation from './components/Navigation';
 import AnalyzePage from './pages/AnalyzePage';
 import PullAdvisorPage from './pages/PullAdvisorPage';
@@ -35,6 +35,7 @@ export default function App() {
   const [error, setError]         = useState(null);
   const [isSurging, setIsSurging] = useState(false);
   const [streamChars, setStreamChars] = useState(0);
+  const [statusMessage, setStatusMessage] = useState(null);
   const streamCharsRef = useRef(0);
 
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function App() {
     setView(v);
     setStrategy(null);
     setError(null);
+    setStatusMessage(null);
     if (v === 'pull') setCoachingMode('pull_advisor');
     if (v === 'analyze' && coachingMode === 'pull_advisor') setCoachingMode('strategy');
   }
@@ -56,6 +58,7 @@ export default function App() {
     setError(null);
     setStrategy(null);
     setStreamChars(0);
+    setStatusMessage(null);
     streamCharsRef.current = 0;
 
     const payload = {
@@ -77,8 +80,9 @@ export default function App() {
           setStreamChars(streamCharsRef.current);
         }
       },
-      onResult: (data) => { setStrategy(data); setLoading(false); },
-      onError:  (e)    => { setError(e.message); setLoading(false); },
+      onStatus: (msg)  => setStatusMessage(msg),
+      onResult: (data) => { setStrategy(data); setStatusMessage(null); setLoading(false); },
+      onError:  (e)    => { setError(e.message); setStatusMessage(null); setLoading(false); },
     });
   }
 
@@ -97,14 +101,14 @@ export default function App() {
     hunters, setHunters,
     battlePower, setBattlePower,
     jinwooPower, setJinwooPower,
-    strategy, loading, error, streamChars,
+    strategy, loading, error, streamChars, statusMessage,
     handleAnalyze, handleFeedback,
     onNavigate: navigate,
   };
 
   return (
     <>
-      <PortalScene isActive={loading || isSurging} />
+      <AppBackground isActive={loading || isSurging} />
       <div className="app" style={{ position: 'relative', zIndex: 1 }}>
         <Navigation view={view} onNavigate={navigate} />
 

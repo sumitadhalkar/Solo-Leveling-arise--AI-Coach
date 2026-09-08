@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import Icon from './Icon';
 
 // ── Element colour maps ──────────────────────────────────────────────────────
 const HUNTER_ELEMENT = {
@@ -27,17 +28,17 @@ const CHIP_STYLE = {
 };
 
 const CONFIDENCE_STYLE = {
-  High:   { color: '#60e860', bg: 'rgba(96,232,96,0.10)',   border: 'rgba(96,232,96,0.30)' },
-  Medium: { color: '#e8c04a', bg: 'rgba(232,192,74,0.10)',  border: 'rgba(232,192,74,0.30)' },
-  Low:    { color: '#e05555', bg: 'rgba(224,85,85,0.10)',   border: 'rgba(224,85,85,0.30)' },
+  High:   { color: '#57b869', bg: 'rgba(87,184,105,0.10)',  border: 'rgba(87,184,105,0.30)' },
+  Medium: { color: '#e0b83f', bg: 'rgba(224,184,63,0.10)',  border: 'rgba(224,184,63,0.30)' },
+  Low:    { color: '#e0615f', bg: 'rgba(224,97,95,0.10)',   border: 'rgba(224,97,95,0.30)' },
 };
 
 const PULL_COLOR = {
-  'Pull':         '#60e860',
-  'Soft Pull':    '#e8c04a',
-  'Conditional':  '#50b0f0',
-  'Skip':         '#e05555',
-  'Skip (F2P)':   '#f07050',
+  'Pull':         '#57b869',
+  'Soft Pull':    '#e0b83f',
+  'Conditional':  '#4fa4dd',
+  'Skip':         '#e0615f',
+  'Skip (F2P)':   '#dd6a4e',
 };
 
 // ── Animation variants ───────────────────────────────────────────────────────
@@ -54,12 +55,12 @@ function Section({ eyebrow, children }) {
   );
 }
 
-function BulletList({ items, mark, markClass }) {
+function BulletList({ items, icon = 'diamond', markClass }) {
   return (
     <ul className="bullet-list">
       {items.map((t, i) => (
         <li key={i}>
-          <span className={markClass || 'bullet-dot'}>{mark || '◈'}</span>
+          <span className={markClass || 'bullet-dot'}><Icon name={icon} size={12} /></span>
           <span className="strategy-text">{t}</span>
         </li>
       ))}
@@ -90,7 +91,7 @@ function PullHero({ pull_advice, pullColor }) {
               <ul className="pull-pc-list">
                 {pull_advice.pros.map((p, i) => (
                   <li key={i}>
-                    <span className="pc-mark-pro">✓</span>
+                    <span className="pc-mark-pro"><Icon name="check" size={12} /></span>
                     <span className="strategy-text">{p}</span>
                   </li>
                 ))}
@@ -103,7 +104,7 @@ function PullHero({ pull_advice, pullColor }) {
               <ul className="pull-pc-list">
                 {pull_advice.cons.map((c, i) => (
                   <li key={i}>
-                    <span className="pc-mark-con">✗</span>
+                    <span className="pc-mark-con"><Icon name="x" size={12} /></span>
                     <span className="strategy-text">{c}</span>
                   </li>
                 ))}
@@ -130,14 +131,14 @@ function PullHero({ pull_advice, pullColor }) {
       {pull_advice.alternatives?.length > 0 && (
         <div className="pull-upcoming" style={{ marginTop: 14 }}>
           <div className="pull-upcoming-label">Alternatives to Consider</div>
-          <BulletList items={pull_advice.alternatives} mark="◈" />
+          <BulletList items={pull_advice.alternatives} />
         </div>
       )}
 
       {pull_advice.upcoming_banners?.length > 0 && (
         <div className="pull-upcoming" style={{ marginTop: 12 }}>
           <div className="pull-upcoming-label">Upcoming Banners</div>
-          <BulletList items={pull_advice.upcoming_banners} mark="◈" />
+          <BulletList items={pull_advice.upcoming_banners} />
         </div>
       )}
     </Section>
@@ -228,7 +229,7 @@ export default function StrategyOutput({
 
       {/* ── Report banner ─────────────────────────────────── */}
       <motion.div className={`report-banner ${isPull ? 'pull' : 'analyze'}`} variants={item}>
-        <span>{isPull ? '🎯' : '🧠'}</span>
+        <Icon name={isPull ? 'target' : 'insight'} size={13} />
         {isPull ? 'Pull Advisor Report' : 'Analyze Report'}
       </motion.div>
 
@@ -260,7 +261,7 @@ export default function StrategyOutput({
       {/* Confidence reason */}
       {confidence_reason && (
         <motion.div className="confidence-reason" variants={item}>
-          <span className="conf-icon">◈</span> {confidence_reason}
+          <span className="conf-icon"><Icon name="diamond" size={11} /></span> {confidence_reason}
         </motion.div>
       )}
 
@@ -277,7 +278,7 @@ export default function StrategyOutput({
               <span className="meta-rank-label">Previous</span>
               <span className="meta-rank prev">{meta_changes.previous_rank}</span>
             </div>
-            <span className="meta-arrow">→</span>
+            <span className="meta-arrow"><Icon name="chevronRight" size={16} /></span>
             <div className="meta-rank-block">
               <span className="meta-rank-label">Current</span>
               <span className="meta-rank current">{meta_changes.current_rank}</span>
@@ -360,7 +361,7 @@ export default function StrategyOutput({
             {resource_warnings.map((w, i) => (
               <div key={i} className="resource-warning">
                 <div className="rw-header">
-                  <span className="rw-icon">⚠</span>
+                  <span className="rw-icon"><Icon name="alert" size={13} /></span>
                   <span className="rw-subject">{w.subject}</span>
                 </div>
                 <p className="strategy-text rw-warning">{w.warning}</p>
@@ -433,25 +434,25 @@ export default function StrategyOutput({
           {boss_strategy.weaknesses?.length > 0 && (
             <div className="boss-subsection">
               <div className="boss-sub-label">Weaknesses</div>
-              <BulletList items={boss_strategy.weaknesses} mark="◉" markClass="bullet-weakness" />
+              <BulletList items={boss_strategy.weaknesses} icon="alert" markClass="bullet-weakness" />
             </div>
           )}
           {boss_strategy.attack_patterns?.length > 0 && (
             <div className="boss-subsection">
               <div className="boss-sub-label">Attack Patterns</div>
-              <BulletList items={boss_strategy.attack_patterns} mark="▸" markClass="bullet-pattern" />
+              <BulletList items={boss_strategy.attack_patterns} icon="chevronRight" markClass="bullet-pattern" />
             </div>
           )}
           {boss_strategy.positioning_tips?.length > 0 && (
             <div className="boss-subsection">
               <div className="boss-sub-label">Positioning</div>
-              <BulletList items={boss_strategy.positioning_tips} mark="⊹" markClass="bullet-position" />
+              <BulletList items={boss_strategy.positioning_tips} icon="target" markClass="bullet-position" />
             </div>
           )}
           {boss_strategy.skill_timing?.length > 0 && (
             <div className="boss-subsection">
               <div className="boss-sub-label">Skill Timing</div>
-              <BulletList items={boss_strategy.skill_timing} mark="⏱" markClass="bullet-timing" />
+              <BulletList items={boss_strategy.skill_timing} icon="hourglass" markClass="bullet-timing" />
             </div>
           )}
           {boss_strategy.common_mistakes?.length > 0 && (
@@ -460,7 +461,7 @@ export default function StrategyOutput({
               <ul className="mistakes-list">
                 {boss_strategy.common_mistakes.map((m, i) => (
                   <li key={i}>
-                    <span className="mistake-mark">✕</span>
+                    <span className="mistake-mark"><Icon name="x" size={12} /></span>
                     <span className="strategy-text">{m}</span>
                   </li>
                 ))}
@@ -492,7 +493,7 @@ export default function StrategyOutput({
           {pull_advice.upcoming_banners?.length > 0 && (
             <div className="pull-upcoming">
               <div className="pull-upcoming-label">Upcoming Banners to Consider</div>
-              <BulletList items={pull_advice.upcoming_banners} mark="◈" />
+              <BulletList items={pull_advice.upcoming_banners} />
             </div>
           )}
         </Section>
@@ -504,13 +505,13 @@ export default function StrategyOutput({
           {missing_roles?.length > 0 && (
             <div className="team-builder-block">
               <div className="tb-label">Missing Roles</div>
-              <BulletList items={missing_roles} mark="✗" markClass="bullet-missing" />
+              <BulletList items={missing_roles} icon="x" markClass="bullet-missing" />
             </div>
           )}
           {future_pulls?.length > 0 && (
             <div className="team-builder-block">
               <div className="tb-label">Recommended Future Pulls</div>
-              <BulletList items={future_pulls} mark="★" markClass="bullet-pull" />
+              <BulletList items={future_pulls} icon="star" markClass="bullet-pull" />
             </div>
           )}
         </Section>
@@ -522,7 +523,7 @@ export default function StrategyOutput({
           <ul className="mistakes-list">
             {mistakes_to_avoid.map((m, i) => (
               <li key={i}>
-                <span className="mistake-mark">✕</span>
+                <span className="mistake-mark"><Icon name="x" size={12} /></span>
                 <span className="strategy-text">{m}</span>
               </li>
             ))}
@@ -536,7 +537,7 @@ export default function StrategyOutput({
           <div className="myth-list">
             {myths_busted.map((m, i) => (
               <div key={i} className="myth-item">
-                <span className="myth-icon">🔍</span>
+                <span className="myth-icon"><Icon name="search" size={13} /></span>
                 <p className="strategy-text">{m}</p>
               </div>
             ))}
@@ -604,7 +605,8 @@ export default function StrategyOutput({
             className="quick-switch-btn"
             onClick={() => onSwitchMode(isPull ? 'analyze' : 'pull')}
           >
-            {isPull ? 'Switch to Analyze Mode →' : 'Switch to Pull Advisor →'}
+            {isPull ? 'Switch to Analyze Mode' : 'Switch to Pull Advisor'}
+            <Icon name="chevronRight" size={12} />
           </button>
         </motion.div>
       )}

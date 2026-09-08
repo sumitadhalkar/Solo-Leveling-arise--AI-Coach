@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { saveRoster } from '../services/memory';
+import Icon from './Icon';
 
 // ── Complete hunter roster (June 2026) ──────────────────────────────────────
 const HUNTER_ELEMENT = {
@@ -158,9 +159,8 @@ export default function RosterInput({
                   exit={{ opacity: 0, x: -12 }}
                   transition={{ duration: 0.18 }}
                 >
-                  <span className="hunter-el-dot" style={{ background: EL_COLOR[el] }} />
                   <span className="hunter-el-badge" style={{ color: EL_COLOR[el] }}>
-                    {EL_BADGE[el]}
+                    <Icon name={el} size={13} />
                   </span>
                   <span className="hunter-name">{h.name}</span>
                   <span className="hunter-badge">A{h.advancement}</span>

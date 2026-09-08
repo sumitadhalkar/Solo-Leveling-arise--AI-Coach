@@ -57,6 +57,38 @@ def _is_rate_limit(e: Exception) -> bool:
     ))
 
 
+def _is_transient(e: Exception) -> bool:
+    """Server-side hiccups worth retrying: model overload, 5xx, timeouts.
+
+    Distinct from _is_rate_limit — a 503 means *the model* is busy, not that our
+    key is exhausted, so retrying the same key after a short backoff is the right
+    move rather than putting that key into cooldown.
+    """
+    msg = str(e).lower()
+    return any(kw in msg for kw in (
+        "503", "unavailable", "overloaded", "high demand", "500", "internal error",
+        "502", "504", "deadline", "timeout", "connection reset", "temporarily",
+    ))
+
+
+def _friendly_error(raw: str) -> str:
+    """Turn a provider stack-trace string into something a player can act on."""
+    low = raw.lower()
+    if any(k in low for k in ("503", "unavailable", "overloaded", "high demand")):
+        return "The AI model is under heavy load right now. Please try again in a moment."
+    if any(k in low for k in ("429", "quota", "rate limit", "resource_exhausted")):
+        return "The daily AI request limit has been reached. Please try again later."
+    if any(k in low for k in ("api key", "unauthenticated", "permission", "401", "403")):
+        return "The AI service is not configured correctly. Please contact the site owner."
+    if any(k in low for k in ("deadline", "timeout")):
+        return "That request took too long to complete. Please try again."
+    return "Something went wrong generating your strategy. Please try again."
+
+
+# Backoff schedule for transient failures, in seconds between attempts.
+_RETRY_BACKOFF = [1.0, 3.0, 7.0]
+
+
 # ── Analytics ─────────────────────────────────────────────────────────────────
 _stats: dict = {
     "cache_hits":         0,
@@ -66,6 +98,7 @@ _stats: dict = {
     "json_parse_failures": 0,
     "total_requests":     0,
     "rate_limit_hits":    0,
+    "errors":             0,
 }
 _timing: dict = {
     "cache_hit": {"ms": 0, "count": 0},
@@ -101,6 +134,7 @@ def get_stats() -> dict:
         "search_rate":         f"{_stats['search_calls'] / total * 100:.1f}%" if total > 0 else "N/A",
         "json_parse_failures": _stats["json_parse_failures"],
         "rate_limit_hits":     _stats["rate_limit_hits"],
+        "errors":              _stats["errors"],
         "latency": {
             "cache_hit_avg":  _avg_ms("cache_hit"),
             "no_search_avg":  _avg_ms("no_search"),
@@ -590,46 +624,86 @@ async def run_coach_pipeline(request: CoachRequest) -> dict:
         return _response_cache[key]
 
     _stats["cache_misses"] += 1
-    use_search  = _should_search(request)
-    prompt      = _build_prompt(request)
-    tried_keys  = set()
-    last_error  = None
+    use_search = _should_search(request)
+    prompt     = _build_prompt(request)
+    model      = settings.LLM_MODEL
+    last_error = None
 
-    while len(tried_keys) < len(_client_pool) + 1:
+    _init_pool()
+
+    for attempt in range(len(_RETRY_BACKOFF) + 1):
         api_key, client = _get_best_pair()
-        if api_key in tried_keys:
-            break
-        tried_keys.add(api_key)
+        try:
+            raw    = await asyncio.to_thread(_sync_generate, client, model, prompt, use_search)
+            result = _extract_json(raw)
+            if "parse_error" not in result:
+                _response_cache[key] = result
+            elapsed = int((time.monotonic() - t0) * 1000)
+            bucket  = "search" if use_search else "no_search"
+            _track_timing(bucket, elapsed)
+            if use_search: _stats["search_calls"] += 1
+            else:          _stats["no_search_calls"] += 1
+            _log_request(request, searched=use_search, cache_hit=False, elapsed_ms=elapsed)
+            print(f"[pipeline] {elapsed}ms  model={model}  search={use_search}  key=…{api_key[-6:]}")
+            return result
+        except Exception as e:
+            last_error = e
+            retryable  = _is_transient(e) or _is_rate_limit(e)
 
-        for model in [settings.LLM_MODEL]:
-            try:
-                raw    = await asyncio.to_thread(_sync_generate, client, model, prompt, use_search)
-                result = _extract_json(raw)
-                if "parse_error" not in result:
-                    _response_cache[key] = result
-                elapsed = int((time.monotonic() - t0) * 1000)
-                bucket  = "search" if use_search else "no_search"
-                _track_timing(bucket, elapsed)
-                if use_search: _stats["search_calls"] += 1
-                else:          _stats["no_search_calls"] += 1
-                _log_request(request, searched=use_search, cache_hit=False, elapsed_ms=elapsed)
-                print(f"[pipeline] {elapsed}ms  model={model}  search={use_search}  key=…{api_key[-6:]}")
-                return result
-            except Exception as e:
-                if _is_rate_limit(e):
-                    _stats["rate_limit_hits"] += 1
-                    _mark_rate_limited(api_key)
-                    break  # try next key
-                last_error = e
-                continue   # try next model with same key
+            if _is_rate_limit(e):
+                _stats["rate_limit_hits"] += 1
+                _mark_rate_limited(api_key)
 
-    return {"raw_response": str(last_error), "parse_error": "All models/keys failed"}
+            if attempt >= len(_RETRY_BACKOFF) or not retryable:
+                break
+
+            # A different key already free? Switch to it without waiting.
+            now = time.monotonic()
+            key_available = any(_key_cooldowns.get(k, 0) <= now for k, _ in _client_pool)
+            delay = 0.0 if (_is_rate_limit(e) and key_available) else _RETRY_BACKOFF[attempt]
+
+            print(f"[retry] attempt {attempt + 1} failed ({str(e)[:100]}) — retrying in {delay}s")
+            if delay:
+                await asyncio.sleep(delay)
+
+    _stats["errors"] = _stats.get("errors", 0) + 1
+    return {
+        "raw_response": str(last_error),
+        "parse_error":  "All models/keys failed",
+        "error":        _friendly_error(str(last_error)),
+    }
 
 
 # ── Streaming pipeline ────────────────────────────────────────────────────────
 
+async def _drain_stream_once(client, model, prompt, use_search):
+    """Run one streaming attempt.
+
+    Text is accumulated rather than forwarded so that a failure arriving before
+    any output can be retried cleanly — once we have started emitting to the
+    client, replaying a fresh attempt would duplicate content.
+
+    Returns (chunks, error_message_or_None).
+    """
+    loop = asyncio.get_running_loop()
+    queue: asyncio.Queue = asyncio.Queue()
+    loop.run_in_executor(None, _sync_stream, client, model, prompt, use_search, queue, loop)
+
+    chunks: list[str] = []
+    error = None
+    while True:
+        kind, value = await queue.get()
+        if kind == "chunk":
+            chunks.append(value)
+        elif kind == "error":
+            error = value
+        elif kind == "done":
+            break
+    return chunks, error
+
+
 async def run_coach_pipeline_stream(request: CoachRequest):
-    t0  = time.monotonic()
+    t0 = time.monotonic()
     key = _cache_key(request)
 
     if key in _response_cache:
@@ -643,40 +717,65 @@ async def run_coach_pipeline_stream(request: CoachRequest):
 
     _stats["cache_misses"] += 1
     use_search = _should_search(request)
-    prompt     = _build_prompt(request)
+    prompt = _build_prompt(request)
 
-    # Rate-limit failover: try the best available key
-    api_key, client = _get_best_pair()
+    _init_pool()
+    chunks: list[str] = []
+    last_error = None
 
-    loop  = asyncio.get_running_loop()
-    queue: asyncio.Queue = asyncio.Queue()
-    loop.run_in_executor(None, _sync_stream, client, settings.LLM_MODEL, prompt, use_search, queue, loop)
+    # Retry transient model overloads with backoff, and fail over to another API
+    # key on rate limits. Previously a single 503 from Gemini ended the request
+    # immediately — the streaming path had none of the failover the blocking
+    # path already had.
+    for attempt in range(len(_RETRY_BACKOFF) + 1):
+        api_key, client = _get_best_pair()
+        chunks, err = await _drain_stream_once(client, settings.LLM_MODEL, prompt, use_search)
 
-    full_text: list[str] = []
-    rate_limited = False
-
-    while True:
-        kind, value = await queue.get()
-        if kind == "chunk":
-            full_text.append(value)
-            yield f"data: {json.dumps({'type': 'chunk', 'text': value})}\n\n"
-        elif kind == "done":
-            result  = _extract_json("".join(full_text))
-            elapsed = int((time.monotonic() - t0) * 1000)
-            bucket  = "search" if use_search else "no_search"
-            _track_timing(bucket, elapsed)
-            if use_search: _stats["search_calls"] += 1
-            else:          _stats["no_search_calls"] += 1
-            _log_request(request, searched=use_search, cache_hit=False, elapsed_ms=elapsed)
-            if "parse_error" not in result:
-                _response_cache[key] = result
-            print(f"[pipeline] stream {elapsed}ms  search={use_search}")
-            yield f"data: {json.dumps({'type': 'result', 'data': result})}\n\n"
+        if err is None:
+            last_error = None
             break
-        elif kind == "error":
-            if _is_rate_limit(Exception(value)):
-                _stats["rate_limit_hits"] += 1
-                _mark_rate_limited(api_key)
-                rate_limited = True
-            yield f"data: {json.dumps({'type': 'error', 'message': value})}\n\n"
+
+        last_error = err
+        exc = Exception(err)
+        retryable = _is_transient(exc) or _is_rate_limit(exc)
+
+        if _is_rate_limit(exc):
+            _stats["rate_limit_hits"] += 1
+            _mark_rate_limited(api_key)
+
+        if attempt >= len(_RETRY_BACKOFF) or not retryable:
             break
+
+        # If a different key is already free, switch to it without waiting.
+        now = time.monotonic()
+        key_available = any(_key_cooldowns.get(k, 0) <= now for k, _ in _client_pool)
+        delay = 0.0 if (_is_rate_limit(exc) and key_available) else _RETRY_BACKOFF[attempt]
+
+        print(f"[retry] attempt {attempt + 1} failed ({err[:100]}) — retrying in {delay}s")
+        yield f"data: {json.dumps({'type': 'status', 'message': 'Model busy - retrying...'})}\n\n"
+        if delay:
+            await asyncio.sleep(delay)
+
+    if last_error is not None:
+        _stats["errors"] = _stats.get("errors", 0) + 1
+        print(f"[pipeline] stream FAILED after retries: {last_error[:200]}")
+        yield f"data: {json.dumps({'type': 'error', 'message': _friendly_error(last_error)})}\n\n"
+        return
+
+    # Replay the buffered text so the client still gets incremental output.
+    for chunk in chunks:
+        yield f"data: {json.dumps({'type': 'chunk', 'text': chunk})}\n\n"
+
+    result = _extract_json("".join(chunks))
+    elapsed = int((time.monotonic() - t0) * 1000)
+    bucket = "search" if use_search else "no_search"
+    _track_timing(bucket, elapsed)
+    if use_search:
+        _stats["search_calls"] += 1
+    else:
+        _stats["no_search_calls"] += 1
+    _log_request(request, searched=use_search, cache_hit=False, elapsed_ms=elapsed)
+    if "parse_error" not in result:
+        _response_cache[key] = result
+    print(f"[pipeline] stream {elapsed}ms  search={use_search}")
+    yield f"data: {json.dumps({'type': 'result', 'data': result})}\n\n"

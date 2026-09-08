@@ -27,17 +27,33 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Allow origins can be configured via the ALLOWED_ORIGINS environment variable
-# as a comma-separated list (e.g. "http://localhost:3000,https://my-app.vercel.app").
+# Allowed origins come from the ALLOWED_ORIGINS environment variable as a
+# comma-separated list (e.g. "http://localhost:3000,https://my-app.vercel.app").
+# Trailing slashes are stripped: the browser's Origin header never has one, and
+# CORS origin matching is an exact string comparison.
+def _clean(origins):
+    return [o.strip().rstrip("/") for o in origins if o.strip()]
+
+
+DEFAULT_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
 allowed = os.getenv("ALLOWED_ORIGINS")
-if allowed:
-    allow_origins = [o.strip() for o in allowed.split(",") if o.strip()]
-else:
-    allow_origins = ["http://localhost:3000", "https://solorank-vkhzef00k-sumit-s-projects20.vercel.app/"]
+allow_origins = _clean(allowed.split(",")) if allowed else DEFAULT_ORIGINS
+
+# Vercel mints a new hostname for every deployment, so match them by pattern
+# instead of pinning a single build URL that goes stale on the next push.
+ALLOW_ORIGIN_REGEX = os.getenv(
+    "ALLOWED_ORIGIN_REGEX",
+    r"https://.*\.vercel\.app",
+)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allow_origins,
+    allow_origin_regex=ALLOW_ORIGIN_REGEX,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

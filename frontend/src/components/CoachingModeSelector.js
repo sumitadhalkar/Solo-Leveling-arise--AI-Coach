@@ -1,12 +1,13 @@
 import { AnimatePresence, motion } from 'framer-motion';
+import Icon from './Icon';
 
 const ANALYZE_MODES = [
-  { key: 'strategy',           icon: '⚔',  label: 'Strategy',    desc: 'Team, rotation & builds' },
-  { key: 'team_builder',       icon: '👥',  label: 'Team Builder',desc: 'Full roster analysis' },
-  { key: 'artifact_optimizer', icon: '🔮',  label: 'Artifacts',   desc: 'Deep gear optimization' },
-  { key: 'boss_guide',         icon: '🏆',  label: 'Boss Guide',  desc: 'Attack patterns & tips' },
-  { key: 'future_planning',    icon: '📈',  label: 'Road Map',    desc: '1–3 month goals' },
-  { key: 'myth_bust',          icon: '🔍',  label: 'Myth Bust',   desc: 'Correct misconceptions' },
+  { key: 'strategy',           icon: 'sword',    label: 'Strategy',    desc: 'Team, rotation & builds' },
+  { key: 'team_builder',       icon: 'users',    label: 'Team Builder',desc: 'Full roster analysis' },
+  { key: 'artifact_optimizer', icon: 'gem',      label: 'Artifacts',   desc: 'Deep gear optimization' },
+  { key: 'boss_guide',         icon: 'trophy',   label: 'Boss Guide',  desc: 'Attack patterns & tips' },
+  { key: 'future_planning',    icon: 'trending', label: 'Road Map',    desc: '1–3 month goals' },
+  { key: 'myth_bust',          icon: 'search',   label: 'Myth Bust',   desc: 'Correct misconceptions' },
 ];
 
 const SPENDING_OPTS = [
@@ -45,8 +46,8 @@ export default function CoachingModeSelector({
       {/* Primary toggle — only shown when not inside a dedicated page */}
       {typeof setPrimaryMode === 'function' && <div className="primary-mode-toggle">
         {[
-          { key: 'analyze', icon: '🧠', label: 'Analyze Team', desc: 'Builds & strategy' },
-          { key: 'pull',    icon: '🎯', label: 'Pull Advisor',  desc: 'Banner decisions' },
+          { key: 'analyze', icon: 'insight', label: 'Analyze Team', desc: 'Builds & strategy' },
+          { key: 'pull',    icon: 'target',  label: 'Pull Advisor',  desc: 'Banner decisions' },
         ].map(({ key, icon, label, desc }) => {
           const isActive = primaryMode === key;
           const isLoading = loading && isActive;
@@ -58,7 +59,7 @@ export default function CoachingModeSelector({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
             >
-              <span className="pmb-icon">{icon}</span>
+              <span className="pmb-icon"><Icon name={icon} size={18} /></span>
               <span className="pmb-label">{label}</span>
               <span className="pmb-desc">{desc}</span>
             </motion.button>
@@ -87,7 +88,7 @@ export default function CoachingModeSelector({
                   whileTap={{ scale: 0.97 }}
                   title={desc}
                 >
-                  <span className="coaching-tile-icon">{icon}</span>
+                  <span className="coaching-tile-icon"><Icon name={icon} size={16} /></span>
                   <span className="coaching-tile-label">{label}</span>
                 </motion.button>
               ))}

@@ -3,6 +3,7 @@ import CoachingModeSelector from '../components/CoachingModeSelector';
 import GameModeSelector from '../components/GameModeSelector';
 import RosterInput from '../components/RosterInput';
 import StrategyOutput from '../components/StrategyOutput';
+import Icon from '../components/Icon';
 
 const MODE_LABEL = {
   strategy:           'Strategy',
@@ -31,7 +32,7 @@ export default function AnalyzePage({
   hunters, setHunters,
   battlePower, setBattlePower,
   jinwooPower, setJinwooPower,
-  strategy, loading, error, streamChars,
+  strategy, loading, error, streamChars, statusMessage,
   handleAnalyze, handleFeedback,
   onNavigate,
 }) {
@@ -44,7 +45,7 @@ export default function AnalyzePage({
         transition={{ duration: 0.35, ease: 'easeOut' }}
       >
         <div className="page-mode-header analyze">
-          <span className="page-mode-icon">🧠</span>
+          <span className="page-mode-icon"><Icon name="insight" size={19} /></span>
           <div>
             <div className="page-mode-title">Analyze Team</div>
             <div className="page-mode-sub">Builds, strategy & progression</div>
@@ -78,7 +79,7 @@ export default function AnalyzePage({
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          {loading ? 'Analyzing…' : `🧠 Analyze — ${MODE_LABEL[coachingMode] || coachingMode}`}
+          {loading ? 'Analyzing…' : <><Icon name="insight" size={16} /> Analyze — {MODE_LABEL[coachingMode] || coachingMode}</>}
         </motion.button>
 
         <AnimatePresence>
@@ -99,9 +100,18 @@ export default function AnalyzePage({
         <AnimatePresence mode="wait">
           {loading && (
             <motion.div key="loading" className="empty-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <div className="empty-glyph" style={{ color: '#4e8ff7' }}>◈</div>
+              <div className="empty-glyph" style={{ color: '#6fa3f0' }}><Icon name="diamond" size={40} /></div>
               <div className="empty-title">Analyzing Your Team</div>
               <div className="empty-desc">{loadingDesc[coachingMode]}</div>
+              {statusMessage && (
+                <motion.div
+                  className="status-msg"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  {statusMessage}
+                </motion.div>
+              )}
               {streamChars > 0 && (
                 <motion.div className="stream-indicator" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
                   <span className="stream-pulse" />
@@ -126,11 +136,11 @@ export default function AnalyzePage({
           )}
           {!loading && !strategy && (
             <motion.div key="empty" className="empty-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <div className="empty-glyph" style={{ color: '#4e8ff7' }}>⚔</div>
+              <div className="empty-glyph" style={{ color: '#6fa3f0' }}><Icon name="sword" size={38} /></div>
               <div className="empty-title">Ready to Analyze</div>
               <div className="empty-desc">
                 Add your hunters, pick a coaching focus, then hit{' '}
-                <strong style={{ color: '#4e8ff7' }}>Analyze</strong> for
+                <strong style={{ color: '#6fa3f0' }}>Analyze</strong> for
                 personalized strategy built around your exact roster.
               </div>
             </motion.div>

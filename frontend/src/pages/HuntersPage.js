@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HUNTERS, TIER_STYLE, EL_BADGE, EL_COLOR, PULL_STYLE } from '../data/hunters';
+import { HUNTERS, TIER_STYLE, EL_COLOR, PULL_STYLE } from '../data/hunters';
+import Icon from '../components/Icon';
+
+const TREND_ICON = { rising: 'arrowUp', falling: 'arrowDown', stable: 'minus' };
 
 const ELEMENTS = ['all', 'dark', 'light', 'fire', 'water', 'wind', 'earth'];
 const TIERS    = ['all', 'SS', 'S+', 'S', 'A', 'B'];
@@ -38,7 +41,6 @@ function HunterProfile({ hunter, onBack }) {
   const ts = TIER_STYLE[hunter.tier] || {};
   const ps = PULL_STYLE[hunter.pullValue] || {};
   const elColor = EL_COLOR[hunter.element] || 'var(--text)';
-  const trendIcon = { rising: '▲', falling: '▼', stable: '—' }[hunter.trend] || '—';
   const trendColor = { rising: 'var(--el-earth)', falling: 'var(--danger)', stable: 'var(--text-dim)' }[hunter.trend];
 
   return (
@@ -49,13 +51,13 @@ function HunterProfile({ hunter, onBack }) {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
     >
-      <button className="back-btn" onClick={onBack}>← Back to Hunters</button>
+      <button className="back-btn" onClick={onBack}><Icon name="chevronRight" size={13} /> Back to Hunters</button>
 
       {/* Profile header */}
       <div className="hp-header" style={{ borderColor: elColor }}>
         <div className="hp-header-left">
           <div className="hp-el-badge" style={{ color: elColor }}>
-            {EL_BADGE[hunter.element]} {hunter.element.toUpperCase()}
+            <Icon name={hunter.element} size={13} /> {hunter.element}
           </div>
           <h2 className="hp-name">{hunter.name}</h2>
           <div className="hp-meta-row">
@@ -69,7 +71,7 @@ function HunterProfile({ hunter, onBack }) {
             {hunter.tier}
           </div>
           <div className="hp-trend" style={{ color: trendColor }}>
-            {trendIcon} {hunter.trend}
+            <Icon name={TREND_ICON[hunter.trend] || 'minus'} size={12} /> {hunter.trend}
           </div>
           <div className="hp-pull-value" style={{ color: ps.color, background: ps.bg }}>
             {hunter.pullValue}
@@ -174,7 +176,7 @@ function HunterCard({ hunter, onClick }) {
       style={{ '--el-accent': elColor }}
     >
       <div className="hc-el" style={{ color: elColor }}>
-        {EL_BADGE[hunter.element]}
+        <Icon name={hunter.element} size={20} />
       </div>
       <div className="hc-name">{hunter.name}</div>
       <div className="hc-class">{hunter.class}</div>
@@ -190,7 +192,8 @@ function HunterCard({ hunter, onClick }) {
       <div className="hc-trend" style={{
         color: hunter.trend === 'rising' ? 'var(--el-earth)' : hunter.trend === 'falling' ? 'var(--danger)' : 'var(--text-muted)',
       }}>
-        {{ rising: '▲ Rising', falling: '▼ Falling', stable: '— Stable' }[hunter.trend]}
+        <Icon name={TREND_ICON[hunter.trend] || 'minus'} size={10} />
+        {{ rising: 'Rising', falling: 'Falling', stable: 'Stable' }[hunter.trend]}
       </div>
     </motion.button>
   );
@@ -252,7 +255,7 @@ export default function HuntersPage() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.97 }}
                   >
-                    {el === 'all' ? 'All Elements' : `${EL_BADGE[el]} ${el}`}
+                    {el === 'all' ? 'All Elements' : <><Icon name={el} size={11} /> {el}</>}
                   </motion.button>
                 ))}
               </div>
@@ -281,7 +284,7 @@ export default function HuntersPage() {
             {/* Grid */}
             {filtered.length === 0 ? (
               <div className="empty-state" style={{ marginTop: 40 }}>
-                <div className="empty-glyph">⚔</div>
+                <div className="empty-glyph"><Icon name="search" size={34} /></div>
                 <div className="empty-title">No hunters match your filters</div>
               </div>
             ) : (
