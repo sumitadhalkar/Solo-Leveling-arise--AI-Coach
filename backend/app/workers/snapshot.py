@@ -106,7 +106,7 @@ async def refresh_snapshot() -> bool:
 
     def _call(client: genai.Client):
         return client.models.generate_content(
-            model="gemini-3.6-flash",
+            model=settings.LLM_MODEL,
             contents=_PROMPT,
             config=config,
         )

@@ -43,7 +43,7 @@ def _init_pools():
         base_url = settings.compat_base_url()
         _compat_pool = [(k, OpenAI(api_key=k, base_url=base_url)) for k in settings.compat_keys()]
     if not _gemini_pool and not _compat_pool:
-        raise ValueError("No GEMINI_API_KEY or OPENAI_COMPATIBLE_API_KEY configured in .env")
+        raise ValueError("No GEMINI_API_KEY or NVIDIA_API_KEY configured in .env")
 
 
 def _all_keys() -> list[str]:
@@ -232,7 +232,7 @@ def _cache_key(request: CoachRequest) -> str:
 # ── Robust JSON extraction ────────────────────────────────────────────────────
 
 def _extract_json(text: str) -> dict:
-    text = text.strip()
+    text = (text or "").strip()
     try:
         return json.loads(text)
     except json.JSONDecodeError:
@@ -620,7 +620,11 @@ def _sync_generate(provider: str, client, model: str, prompt: str, use_search: b
     if provider == "gemini":
         tools = [types.Tool(google_search=types.GoogleSearch())] if use_search else None
         config = types.GenerateContentConfig(system_instruction=_SYSTEM_PROMPT, tools=tools)
-        return client.models.generate_content(model=model, contents=prompt, config=config).text
+        # .text can legitimately be None (safety filtering, empty candidates,
+        # a quota response that still returns 200) — never let that propagate
+        # as a bare None into _extract_json, which would crash on .strip()
+        # with an unhelpful AttributeError that masks the real cause.
+        return client.models.generate_content(model=model, contents=prompt, config=config).text or ""
 
     # The configured OpenAI-compatible provider (NVIDIA by default) — plain
     # chat completions, no search tool available from any provider here.

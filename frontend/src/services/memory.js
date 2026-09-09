@@ -29,7 +29,8 @@ export function saveProfile(profile) {
 }
 
 export function loadRoster() {
-  return load().hunters || [];
+  const hunters = load().hunters;
+  return Array.isArray(hunters) ? hunters : [];
 }
 
 export function loadProfile() {

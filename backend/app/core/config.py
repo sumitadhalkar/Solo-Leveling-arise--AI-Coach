@@ -16,33 +16,34 @@ class Settings(BaseSettings):
     GEMINI_API_KEY_2: str = ""
     LLM_MODEL: str = "gemini-3.6-flash"
 
-    # Generic OpenAI-compatible provider slot — works with ANY service that
-    # speaks the OpenAI chat-completions protocol: NVIDIA NIM, Groq, Together,
-    # DeepSeek, Fireworks, OpenRouter, Mistral's La Plateforme, a local
-    # Ollama/vLLM server, and most others. A raw API key alone carries no
-    # signature saying which provider it belongs to, so there's no way to
-    # accept "any key" with zero configuration — but any key from a provider
-    # that speaks this near-universal protocol works as soon as you point
-    # BASE_URL at it (Anthropic/Claude is the notable exception: different
-    # protocol entirely, not covered by this slot).
-    # Optional: the app runs on Gemini alone if these are left blank. See
+    # Second provider slot — pinned to NVIDIA NIM only (OpenAI-compatible
+    # chat-completions protocol). This app supports exactly two providers:
+    # Gemini and NVIDIA. BASE_URL/MODEL are intentionally not configurable
+    # via env var so this slot can't be silently repointed at another
+    # provider — only the API key(s) and, optionally, which NVIDIA-hosted
+    # model to use are.
+    # Optional: the app runs on Gemini alone if no NVIDIA key is set. See
     # app/rag/pipeline.py's provider-selection comment for why this slot only
     # ever handles non-search requests (no provider behind it can match
     # Gemini's live Google Search grounding).
-    OPENAI_COMPATIBLE_API_KEY: str = ""
-    OPENAI_COMPATIBLE_API_KEY_2: str = ""
-    OPENAI_COMPATIBLE_BASE_URL: str = ""
-    OPENAI_COMPATIBLE_MODEL: str = ""
-    OPENAI_COMPATIBLE_LABEL: str = ""  # optional friendly name for log lines, e.g. "groq"
-
-    # Legacy NVIDIA-specific names — still honored as a fallback (see the
-    # compat_* methods below) so an existing .env doesn't need to change.
-    # NVIDIA_BASE_URL/NVIDIA_LLM_MODEL also serve as this slot's defaults,
-    # since NVIDIA is what it was built against first.
     NVIDIA_API_KEY: str = ""
     NVIDIA_API_KEY_2: str = ""
     NVIDIA_BASE_URL: str = "https://integrate.api.nvidia.com/v1"
-    NVIDIA_LLM_MODEL: str = "meta/llama-3.3-70b-instruct"
+    NVIDIA_LLM_MODEL: str = "deepseek-ai/deepseek-v4-pro-0813"
+
+    # Backward-compatible aliases: an older .env may still set these generic
+    # names. They're honored only as an alternate source for the NVIDIA key
+    # and model — never for BASE_URL, which stays pinned to NVIDIA above.
+    OPENAI_COMPATIBLE_API_KEY: str = ""
+    OPENAI_COMPATIBLE_API_KEY_2: str = ""
+    OPENAI_COMPATIBLE_MODEL: str = ""
+
+    # Optional shared secret guarding /api/v1/admin/* — that route forces an
+    # immediate live Gemini Search call, so leaving it open lets anyone who
+    # can reach the API trigger cost/quota usage on demand. Left blank by
+    # default so existing deployments don't break; set it to lock the route
+    # down and pass the same value as an `X-Admin-Token` header.
+    ADMIN_TOKEN: str = ""
 
     @staticmethod
     def _split_keys(*raw: str) -> list[str]:
@@ -62,31 +63,17 @@ class Settings(BaseSettings):
         return self._split_keys(self.GEMINI_API_KEY, self.GEMINI_API_KEY_2)
 
     def compat_keys(self) -> list[str]:
-        keys = self._split_keys(self.OPENAI_COMPATIBLE_API_KEY, self.OPENAI_COMPATIBLE_API_KEY_2)
-        return keys or self._split_keys(self.NVIDIA_API_KEY, self.NVIDIA_API_KEY_2)
+        keys = self._split_keys(self.NVIDIA_API_KEY, self.NVIDIA_API_KEY_2)
+        return keys or self._split_keys(self.OPENAI_COMPATIBLE_API_KEY, self.OPENAI_COMPATIBLE_API_KEY_2)
 
     def compat_base_url(self) -> str:
-        return self.OPENAI_COMPATIBLE_BASE_URL or self.NVIDIA_BASE_URL
+        return self.NVIDIA_BASE_URL
 
     def compat_model(self) -> str:
-        return self.OPENAI_COMPATIBLE_MODEL or self.NVIDIA_LLM_MODEL
+        return self.NVIDIA_LLM_MODEL or self.OPENAI_COMPATIBLE_MODEL
 
     def compat_label(self) -> str:
-        """Best-effort friendly name for log lines — inferred from the base
-        URL's hostname so it's useful without extra config, overridable via
-        OPENAI_COMPATIBLE_LABEL for anything the heuristic doesn't catch."""
-        if self.OPENAI_COMPATIBLE_LABEL:
-            return self.OPENAI_COMPATIBLE_LABEL
-        url = self.compat_base_url().lower()
-        for needle, name in (
-            ("nvidia", "nvidia"), ("groq", "groq"), ("together", "together"),
-            ("deepseek", "deepseek"), ("openrouter", "openrouter"),
-            ("fireworks", "fireworks"), ("mistral", "mistral"),
-            ("localhost", "local"), ("127.0.0.1", "local"), ("0.0.0.0", "local"),
-        ):
-            if needle in url:
-                return name
-        return "custom"
+        return "nvidia"
 
 
 settings = Settings()

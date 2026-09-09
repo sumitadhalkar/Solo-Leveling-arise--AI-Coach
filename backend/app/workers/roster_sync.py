@@ -192,7 +192,7 @@ async def _generate_gemini(prompt: str, keys: list[str]) -> str:
         try:
             client = genai.Client(api_key=key)
             resp = await asyncio.to_thread(
-                client.models.generate_content, model="gemini-3.6-flash", contents=prompt, config=config
+                client.models.generate_content, model=settings.LLM_MODEL, contents=prompt, config=config
             )
             return resp.text
         except Exception as e:
