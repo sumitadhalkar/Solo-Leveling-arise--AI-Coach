@@ -1,0 +1,3409 @@
+{
+  "hunters": [
+    {
+      "name": "Sung Jin-Woo",
+      "element": "dark",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "SS",
+      "trend": "stable",
+      "pullValue": "Must Pull",
+      "role": "Main DPS",
+      "playstyle": "Aggressive burst DPS scaling through Shadow Army stacks. Excels at single-target elimination and AoE clearing via ultimate combos. Requires clean skill timing to compound shadow synergies.",
+      "stats": {
+        "attack": 5,
+        "defense": 1,
+        "speed": 4,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Shadow Strike",
+          "type": "Active",
+          "desc": "Multi-hit dark melee combo. Core rotation damage skill — use on cooldown."
+        },
+        {
+          "name": "Domain of Monarch",
+          "type": "Ultimate",
+          "desc": "Deploys shadow army for sustained AoE dark damage. Highest single-cast damage in kit."
+        },
+        {
+          "name": "Shadow Exchange",
+          "type": "Active",
+          "desc": "Teleport to shadow position + burst dark strike. Primary mobility and gap-closer."
+        },
+        {
+          "name": "Monarch's Aura",
+          "type": "Passive",
+          "desc": "Amplifies dark damage dealt. Generates shadow stacks on kill — compounds DPS over fight duration."
+        }
+      ],
+      "bestWeapons": [
+        "Demon King's Longsword",
+        "Beru's Fang"
+      ],
+      "artifacts": [
+        "Ruler's Authority Set",
+        "Shadow Monarch's Robe"
+      ],
+      "statPriority": [
+        "ATK%",
+        "CRIT DMG",
+        "CRIT Rate",
+        "Dark DMG Bonus"
+      ],
+      "f2pBuild": "Craft SR dark weapons. Run any 2-piece ATK set until SS artifact sets are farmable. Prioritize CRIT Rate substats early.",
+      "bestTeammates": [
+        "Cha Hae-In",
+        "Alicia",
+        "Min Byung-Gu"
+      ],
+      "antiSynergy": [],
+      "description": "The protagonist and the strongest hunter in the game. Absolute must-pull for any account regardless of spending level."
+    },
+    {
+      "name": "Cha Hae-In",
+      "element": "light",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "SS",
+      "trend": "stable",
+      "pullValue": "Must Pull",
+      "role": "Sub DPS / Synergy Buffer",
+      "playstyle": "Fast-attacking light DPS with passive team amplification. Pairs exceptionally with Sung Jin-Woo via a unique synergy passive. Easy rotation, forgiving gameplay, exceptional value.",
+      "stats": {
+        "attack": 4,
+        "defense": 2,
+        "speed": 5,
+        "utility": 4
+      },
+      "skills": [
+        {
+          "name": "Flash Sword",
+          "type": "Active",
+          "desc": "Multi-hit light sword combo. Fast animation, high hit count, great in burst windows."
+        },
+        {
+          "name": "Sword of Light",
+          "type": "Ultimate",
+          "desc": "Single massive light strike. Sets up Jin-Woo combo windows naturally."
+        },
+        {
+          "name": "Radiant Slash",
+          "type": "Active",
+          "desc": "Sweeping short-range slash with knockback. Positioning control."
+        },
+        {
+          "name": "Companion Bond",
+          "type": "Passive",
+          "desc": "When paired with Sung Jin-Woo, all party members gain ATK bonus. Core team synergy."
+        }
+      ],
+      "bestWeapons": [
+        "Saint's Longsword",
+        "Silver Blade"
+      ],
+      "artifacts": [
+        "Radiant Knight Set",
+        "Light's Vanguard Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Light DMG Bonus",
+        "CRIT Rate",
+        "CRIT DMG"
+      ],
+      "f2pBuild": "SR light weapon is serviceable early. Very gear-efficient — even mid-investment builds perform well.",
+      "bestTeammates": [
+        "Sung Jin-Woo",
+        "Alicia",
+        "Thomas Andre"
+      ],
+      "antiSynergy": [],
+      "description": "Sung Jin-Woo's canonical partner. Near-mandatory in any Jin-Woo team due to her unique party-wide ATK synergy passive."
+    },
+    {
+      "name": "Liu Zhigang",
+      "element": "fire",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "SS",
+      "trend": "rising",
+      "pullValue": "Must Pull",
+      "role": "Main DPS",
+      "playstyle": "High-burst fire DPS specializing in ignite stack accumulation. Exceptional boss damage when fire weakness applies. Needs support to cover his zero defense/healing.",
+      "stats": {
+        "attack": 5,
+        "defense": 1,
+        "speed": 3,
+        "utility": 2
+      },
+      "skills": [
+        {
+          "name": "Inferno Fist",
+          "type": "Active",
+          "desc": "Powerful fire melee strike applying multiple ignite stacks. Primary damage source."
+        },
+        {
+          "name": "Dragon's Breath",
+          "type": "Ultimate",
+          "desc": "Wide AoE fire cone dealing massive damage + applies bulk ignite stacks."
+        },
+        {
+          "name": "Flame Step",
+          "type": "Active",
+          "desc": "Dash + fire-enhanced strike. Repositioning tool and additional stack applicator."
+        },
+        {
+          "name": "Martial Flame",
+          "type": "Passive",
+          "desc": "Each ignite stack increases damage output by a flat %. Compounds fast in sustained fights."
+        }
+      ],
+      "bestWeapons": [
+        "Dragon's Gauntlet",
+        "Flame Fist"
+      ],
+      "artifacts": [
+        "Blazing Path Set",
+        "Flame Knight Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Fire DMG Bonus",
+        "CRIT DMG",
+        "CRIT Rate"
+      ],
+      "f2pBuild": "SR fire weapon + 2-piece ATK set. Avoid wasting resources on sub-optimal fire sets early.",
+      "bestTeammates": [
+        "Tawata Kanae",
+        "Choi Jong-In",
+        "Alicia"
+      ],
+      "antiSynergy": [
+        "Water-weak bosses negate fire damage — swap out on those fights"
+      ],
+      "description": "Top-tier fire DPS with rising meta relevance. One of the strongest non-protagonist hunters in the current patch."
+    },
+    {
+      "name": "Charlotte",
+      "element": "dark",
+      "class": "Mage",
+      "rarity": "SSR",
+      "tier": "S+",
+      "trend": "stable",
+      "pullValue": "Must Pull",
+      "role": "Mage DPS",
+      "playstyle": "High-ceiling dark mage with complex multi-hit spell combos. Requires precise skill chaining to hit maximum damage. Top pick for dark-weak bosses and ranked arena content.",
+      "stats": {
+        "attack": 5,
+        "defense": 1,
+        "speed": 2,
+        "utility": 2
+      },
+      "skills": [
+        {
+          "name": "Dark Cascade",
+          "type": "Active",
+          "desc": "Three-hit dark projectile chain. Each hit amplifies the next within a time window."
+        },
+        {
+          "name": "Eternal Darkness",
+          "type": "Ultimate",
+          "desc": "Large AoE dark explosion with lingering damage zone. Best used to open chain combos."
+        },
+        {
+          "name": "Shadow Bolt",
+          "type": "Active",
+          "desc": "Fast targeted dark bolt. Resets cooldown windows in skilled combo sequences."
+        },
+        {
+          "name": "Dark Resonance",
+          "type": "Passive",
+          "desc": "Every 4th skill cast fires a bonus dark explosion. Strong sustained passive damage."
+        }
+      ],
+      "bestWeapons": [
+        "Tome of Darkness",
+        "Dark Grimoire"
+      ],
+      "artifacts": [
+        "Void Mage Set",
+        "Night Scholar Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Dark DMG Bonus",
+        "CRIT DMG",
+        "CRIT Rate"
+      ],
+      "f2pBuild": "SR dark staff is fine early. Prioritize dark DMG artifact pieces over generic ATK sets.",
+      "bestTeammates": [
+        "Sung Jin-Woo",
+        "Seorin",
+        "Min Byung-Gu"
+      ],
+      "antiSynergy": [],
+      "description": "Strongest dark mage. Excellent pairing with dark teams. High skill ceiling rewards investment."
+    },
+    {
+      "name": "Minnie",
+      "element": "dark",
+      "class": "Ranger",
+      "rarity": "SSR",
+      "tier": "S+",
+      "trend": "rising",
+      "pullValue": "Good",
+      "role": "Ranged DPS",
+      "playstyle": "Long-range dark ranger with consistent DPS from safe distance. Lower burst than Charlotte but much easier to play. Strong in sustained fights and multi-wave content.",
+      "stats": {
+        "attack": 4,
+        "defense": 2,
+        "speed": 3,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Shadow Arrow",
+          "type": "Active",
+          "desc": "Rapid-fire dark arrows applying a damage-amplification debuff on target."
+        },
+        {
+          "name": "Night Rain",
+          "type": "Ultimate",
+          "desc": "Volleys of dark arrows across a wide area. Excellent for multi-enemy stages."
+        },
+        {
+          "name": "Ghost Shot",
+          "type": "Active",
+          "desc": "Piercing dark shot through enemies. Line-clear utility."
+        },
+        {
+          "name": "Dark Quiver",
+          "type": "Passive",
+          "desc": "Grants bonus dark damage after every 3rd arrow skill. Consistent amplifier."
+        }
+      ],
+      "bestWeapons": [
+        "Shadow Bow",
+        "Night Hunter's Bow"
+      ],
+      "artifacts": [
+        "Sniper's Precision Set",
+        "Dark Hunt Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Dark DMG Bonus",
+        "CRIT Rate",
+        "CRIT DMG"
+      ],
+      "f2pBuild": "One of the most forgiving hunters for F2P gearing. SR dark bow works through all content.",
+      "bestTeammates": [
+        "Sung Jin-Woo",
+        "Charlotte",
+        "Alicia"
+      ],
+      "antiSynergy": [],
+      "description": "Easier-to-play dark DPS than Charlotte. Excellent for players who prefer consistent damage over high-floor combo sequences."
+    },
+    {
+      "name": "Choi Jong-In",
+      "element": "fire",
+      "class": "Mage",
+      "rarity": "SSR",
+      "tier": "S+",
+      "trend": "stable",
+      "pullValue": "Good",
+      "role": "Mage DPS / Team Buffer",
+      "playstyle": "Fire mage with both strong personal DPS and party damage amplification. Excellent support-DPS hybrid that does not sacrifice output for utility. Versatile across most team compositions.",
+      "stats": {
+        "attack": 4,
+        "defense": 1,
+        "speed": 3,
+        "utility": 4
+      },
+      "skills": [
+        {
+          "name": "Ignition Blast",
+          "type": "Active",
+          "desc": "Burst fire AoE explosion with ignite chance on all targets hit."
+        },
+        {
+          "name": "Flames of War",
+          "type": "Ultimate",
+          "desc": "Creates fire zone continuously damaging enemies. Party ATK speed buff while zone is active."
+        },
+        {
+          "name": "Ember Lance",
+          "type": "Active",
+          "desc": "Piercing fire projectile — amplifies fire damage taken by target briefly."
+        },
+        {
+          "name": "Fire Amplifier",
+          "type": "Passive",
+          "desc": "Increases ALL fire damage dealt by all party members. Core support value passive."
+        }
+      ],
+      "bestWeapons": [
+        "Arch Mage's Staff",
+        "Flame Core Wand"
+      ],
+      "artifacts": [
+        "Pyro Mage Set",
+        "Fire Scholar Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Fire DMG Bonus",
+        "CRIT DMG",
+        "Cooldown Reduction"
+      ],
+      "f2pBuild": "Functional with any SR fire staff. His support value activates regardless of gear quality.",
+      "bestTeammates": [
+        "Liu Zhigang",
+        "Tawata Kanae",
+        "Alicia"
+      ],
+      "antiSynergy": [],
+      "description": "Top fire mage and excellent team enabler. His party-wide fire damage buff makes him near-mandatory in fire team compositions."
+    },
+    {
+      "name": "Alicia",
+      "element": "water",
+      "class": "Support",
+      "rarity": "SSR",
+      "tier": "S+",
+      "trend": "stable",
+      "pullValue": "Must Pull",
+      "role": "Healer / Universal Buffer",
+      "playstyle": "The best healing support in the game. Consistent team heals, attack buffs, and a once-per-fight automatic resurrection. Fits into literally any team composition.",
+      "stats": {
+        "attack": 2,
+        "defense": 4,
+        "speed": 3,
+        "utility": 5
+      },
+      "skills": [
+        {
+          "name": "Aqua Heal",
+          "type": "Active",
+          "desc": "Focused single-target heal with small AoE splash. Core survival tool."
+        },
+        {
+          "name": "Tidal Blessing",
+          "type": "Ultimate",
+          "desc": "Full party AoE heal + temporary damage absorption shield on all allies."
+        },
+        {
+          "name": "Water Shield",
+          "type": "Active",
+          "desc": "Water barrier on one ally that absorbs incoming damage before HP is reduced."
+        },
+        {
+          "name": "Revive Waters",
+          "type": "Passive",
+          "desc": "Once per fight, automatically revives a fallen ally with partial HP. Game-changing passive."
+        }
+      ],
+      "bestWeapons": [
+        "Sea Serpent's Wand",
+        "Healing Staff"
+      ],
+      "artifacts": [
+        "Tide Healer Set",
+        "Ocean Guardian Set"
+      ],
+      "statPriority": [
+        "HP%",
+        "Healing Bonus",
+        "DEF%",
+        "SPD"
+      ],
+      "f2pBuild": "Focus HP% artifacts exclusively. Her healing scales off max HP so never build ATK.",
+      "bestTeammates": [
+        "Sung Jin-Woo",
+        "Liu Zhigang",
+        "Charlotte"
+      ],
+      "antiSynergy": [],
+      "description": "The best support in the game bar none. Her auto-revive passive alone justifies inclusion in every team. Pull on sight."
+    },
+    {
+      "name": "Min Byung-Gu",
+      "element": "light",
+      "class": "Healer",
+      "rarity": "SSR",
+      "tier": "S+",
+      "trend": "stable",
+      "pullValue": "Good",
+      "role": "Healer / Light Buffer",
+      "playstyle": "Light-element healer with unique party buffs that specifically empower light-element hunters. Less universally powerful than Alicia but slots perfectly into light team compositions.",
+      "stats": {
+        "attack": 2,
+        "defense": 4,
+        "speed": 3,
+        "utility": 4
+      },
+      "skills": [
+        {
+          "name": "Holy Light",
+          "type": "Active",
+          "desc": "Single target heal + light damage to nearest enemy. Dual-purpose skill."
+        },
+        {
+          "name": "Divine Protection",
+          "type": "Ultimate",
+          "desc": "Party-wide heal over time + damage boost to light-element party members."
+        },
+        {
+          "name": "Barrier of Light",
+          "type": "Active",
+          "desc": "Light shield on lowest-HP ally, absorbing the next hit entirely."
+        },
+        {
+          "name": "Light Resonance",
+          "type": "Passive",
+          "desc": "Boosts healing received by light hunters by 20%. Stacks with Alicia if both present."
+        }
+      ],
+      "bestWeapons": [
+        "Holy Scepter",
+        "Light Healer's Staff"
+      ],
+      "artifacts": [
+        "Sacred Light Set",
+        "Radiant Healer Set"
+      ],
+      "statPriority": [
+        "HP%",
+        "Healing Bonus",
+        "Light DMG Bonus",
+        "DEF%"
+      ],
+      "f2pBuild": "HP-focused artifact build in SR gear. Very accessible for F2P players.",
+      "bestTeammates": [
+        "Cha Hae-In",
+        "Thomas Andre",
+        "Go Gunhee"
+      ],
+      "antiSynergy": [],
+      "description": "Second-best healer and essential in light-heavy comps. Pair with Cha Hae-In and Thomas Andre for a dominant light team."
+    },
+    {
+      "name": "Thomas Andre",
+      "element": "light",
+      "class": "Tank",
+      "rarity": "SSR",
+      "tier": "S",
+      "trend": "stable",
+      "pullValue": "Good",
+      "role": "Tank / Off-DPS",
+      "playstyle": "The tankiest hunter in the game. Absorbs massive damage and forces enemy targeting onto himself, freeing squishy DPS to deal damage without repositioning. Slower gameplay.",
+      "stats": {
+        "attack": 3,
+        "defense": 5,
+        "speed": 1,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Iron Fortress",
+          "type": "Active",
+          "desc": "Taunts all nearby enemies + massive personal damage reduction buff."
+        },
+        {
+          "name": "Colossal Strike",
+          "type": "Ultimate",
+          "desc": "AoE light damage slam with brief stun on all targets hit."
+        },
+        {
+          "name": "Shield Throw",
+          "type": "Active",
+          "desc": "Ranged light projectile that interrupts enemy skill casts."
+        },
+        {
+          "name": "Unyielding",
+          "type": "Passive",
+          "desc": "When HP drops below 30%, gain large DEF bonus + passive health regeneration."
+        }
+      ],
+      "bestWeapons": [
+        "Fortress Shield",
+        "Holy Guardian's Shield"
+      ],
+      "artifacts": [
+        "Iron Wall Set",
+        "Guardian Set"
+      ],
+      "statPriority": [
+        "DEF%",
+        "HP%",
+        "Block Rate",
+        "Damage Reduction"
+      ],
+      "f2pBuild": "DEF% and HP% focused. Does not require SS artifacts — his tanking value is gear-independent.",
+      "bestTeammates": [
+        "Cha Hae-In",
+        "Min Byung-Gu",
+        "Charlotte"
+      ],
+      "antiSynergy": [
+        "Redundant in content where survivability is not a concern — wastes a DPS slot"
+      ],
+      "description": "Premier tank. Essential for high-difficulty content. Pull if your team struggles to survive boss mechanics."
+    },
+    {
+      "name": "Seorin",
+      "element": "dark",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "S",
+      "trend": "rising",
+      "pullValue": "Good",
+      "role": "Dark Team Enabler / DPS",
+      "playstyle": "Dark fighter whose primary value is stacking enemy DEF reductions that multiply the output of all dark teammates. Personal damage is solid but not the reason to run her.",
+      "stats": {
+        "attack": 4,
+        "defense": 2,
+        "speed": 3,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Shadow Blade",
+          "type": "Active",
+          "desc": "Fast dark sword strike applying DEF down debuff to target."
+        },
+        {
+          "name": "Dark Execution",
+          "type": "Ultimate",
+          "desc": "High-damage single-target dark combo stacking multiple DEF reduction layers."
+        },
+        {
+          "name": "Nightmare Step",
+          "type": "Active",
+          "desc": "Short dash into target with dark AoE burst on landing."
+        },
+        {
+          "name": "Curse of Darkness",
+          "type": "Passive",
+          "desc": "Enemies hit by dark skills take increased dark damage from all sources. Scales with dark team size."
+        }
+      ],
+      "bestWeapons": [
+        "Cursed Blade",
+        "Shadow Executioner"
+      ],
+      "artifacts": [
+        "Dark Knight Set",
+        "Void Warrior Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Dark DMG Bonus",
+        "CRIT Rate",
+        "CRIT DMG"
+      ],
+      "f2pBuild": "SR dark weapon + any 2-piece ATK set. Her debuff value activates even at low investment.",
+      "bestTeammates": [
+        "Sung Jin-Woo",
+        "Charlotte",
+        "Minnie"
+      ],
+      "antiSynergy": [],
+      "description": "Rising dark team amplifier. Excellent third slot in any Sung Jin-Woo + Charlotte composition."
+    },
+    {
+      "name": "Woo Jinchul",
+      "element": "wind",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "S",
+      "trend": "stable",
+      "pullValue": "Good",
+      "role": "Bruiser / Wind DPS",
+      "playstyle": "Aggressive wind fighter with high sustained damage and built-in debuffs. Good balance of offense and durability. Strong in wind-weak content and ranked modes.",
+      "stats": {
+        "attack": 4,
+        "defense": 3,
+        "speed": 4,
+        "utility": 2
+      },
+      "skills": [
+        {
+          "name": "Wind Slash",
+          "type": "Active",
+          "desc": "Rapid wind-element slashes. High hit count, applies speed reduction to target."
+        },
+        {
+          "name": "Tempest Assault",
+          "type": "Ultimate",
+          "desc": "Dashes through all enemies in a line dealing massive wind damage."
+        },
+        {
+          "name": "Gale Strike",
+          "type": "Active",
+          "desc": "Single powerful wind strike that briefly stuns target."
+        },
+        {
+          "name": "Wind Walker",
+          "type": "Passive",
+          "desc": "Increases evasion and movement speed. Reduces damage taken from wind attacks."
+        }
+      ],
+      "bestWeapons": [
+        "Tempest Blade",
+        "Gale Sword"
+      ],
+      "artifacts": [
+        "Storm Knight Set",
+        "Wind Breaker Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Wind DMG Bonus",
+        "CRIT Rate",
+        "SPD"
+      ],
+      "f2pBuild": "SPD substats are a priority over CRIT DMG specifically for him. SR wind weapons work.",
+      "bestTeammates": [
+        "Lee Joohee",
+        "Amamiya Mirei",
+        "Alicia"
+      ],
+      "antiSynergy": [],
+      "description": "Solid wind fighter with broad applicability. Good pull if building a wind team or needing a durable DPS unit."
+    },
+    {
+      "name": "Lee Joohee",
+      "element": "wind",
+      "class": "Healer",
+      "rarity": "SSR",
+      "tier": "S",
+      "trend": "stable",
+      "pullValue": "Good",
+      "role": "Healer / Wind Buffer",
+      "playstyle": "Wind healer with moderate healing and strong attack speed buffs. Best healer for wind-focused teams. Complements wind units perfectly though less universally powerful than Alicia.",
+      "stats": {
+        "attack": 2,
+        "defense": 3,
+        "speed": 5,
+        "utility": 4
+      },
+      "skills": [
+        {
+          "name": "Wind Mend",
+          "type": "Active",
+          "desc": "AoE party heal with a wind shield effect on all allies."
+        },
+        {
+          "name": "Gale's Gift",
+          "type": "Ultimate",
+          "desc": "Large party heal over time + attack speed boost to all allies for 15 seconds."
+        },
+        {
+          "name": "Breeze Barrier",
+          "type": "Active",
+          "desc": "Wind barrier on lowest-HP ally, fully absorbing the next damage instance."
+        },
+        {
+          "name": "Windborn Healing",
+          "type": "Passive",
+          "desc": "Each heal skill has a chance to produce a bonus heal on the most wounded ally."
+        }
+      ],
+      "bestWeapons": [
+        "Gale Wand",
+        "Wind Healer's Staff"
+      ],
+      "artifacts": [
+        "Zephyr Healer Set",
+        "Sky Dancer Set"
+      ],
+      "statPriority": [
+        "HP%",
+        "Healing Bonus",
+        "SPD",
+        "Wind DMG Bonus"
+      ],
+      "f2pBuild": "SPD and HP% artifacts. SR gear is sufficient for all content.",
+      "bestTeammates": [
+        "Woo Jinchul",
+        "Amamiya Mirei",
+        "Sung Jin-Woo"
+      ],
+      "antiSynergy": [],
+      "description": "Strong wind-focused healer. Pull if building a wind team or if you lack Alicia."
+    },
+    {
+      "name": "Baek Yoonho",
+      "element": "earth",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "S",
+      "trend": "falling",
+      "pullValue": "Situational",
+      "role": "Tank / DPS Hybrid",
+      "playstyle": "Unique earth tank-fighter hybrid. Deals moderate damage while being durable. Falling out of meta as dedicated tanks and DPS have surpassed his hybrid niche.",
+      "stats": {
+        "attack": 3,
+        "defense": 4,
+        "speed": 2,
+        "utility": 2
+      },
+      "skills": [
+        {
+          "name": "Beast Claw",
+          "type": "Active",
+          "desc": "Earth-element claw strike dealing damage + applying DEF reduction debuff."
+        },
+        {
+          "name": "Apex Predator",
+          "type": "Ultimate",
+          "desc": "Brief transformation massively boosting ATK and DEF simultaneously."
+        },
+        {
+          "name": "Earthen Slam",
+          "type": "Active",
+          "desc": "Ground slam AoE with knockup. Good interruption tool."
+        },
+        {
+          "name": "Wild Regeneration",
+          "type": "Passive",
+          "desc": "Slowly regenerates HP when not taking damage. Passive sustain."
+        }
+      ],
+      "bestWeapons": [
+        "Beast Fang",
+        "Earth Crusher"
+      ],
+      "artifacts": [
+        "Wild Beast Set",
+        "Earth Warrior Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "DEF%",
+        "HP%",
+        "Earth DMG Bonus"
+      ],
+      "f2pBuild": "Balanced ATK/DEF build. Does not need heavy investment to function, which is his main F2P advantage.",
+      "bestTeammates": [
+        "Lee Joohee",
+        "Alicia",
+        "Any DPS unit"
+      ],
+      "antiSynergy": [
+        "Outclassed by Thomas Andre for tanking, outclassed by dedicated DPS for damage"
+      ],
+      "description": "Decent but increasingly situational. Worth using if you lack dedicated tanks or DPS, not worth pulling specifically."
+    },
+    {
+      "name": "Amamiya Mirei",
+      "element": "wind",
+      "class": "Ranger",
+      "rarity": "SSR",
+      "tier": "S",
+      "trend": "stable",
+      "pullValue": "Situational",
+      "role": "Ranged DPS",
+      "playstyle": "Fast-attacking wind ranger with high crit-based damage. Excellent consistent ranged DPS but requires significant gear investment to outperform easier options.",
+      "stats": {
+        "attack": 4,
+        "defense": 1,
+        "speed": 5,
+        "utility": 2
+      },
+      "skills": [
+        {
+          "name": "Wind Arrow",
+          "type": "Active",
+          "desc": "Rapid wind projectiles. Highest attack speed among rangers. Applies crit rate buff on self."
+        },
+        {
+          "name": "Storm Barrage",
+          "type": "Ultimate",
+          "desc": "Massive volley of wind arrows in a fan pattern. High total damage output."
+        },
+        {
+          "name": "Gale Shot",
+          "type": "Active",
+          "desc": "Single precision shot dealing concentrated wind damage, ignores portion of target DEF."
+        },
+        {
+          "name": "Eye of the Wind",
+          "type": "Passive",
+          "desc": "Each crit hit increases CRIT DMG for 3 seconds, stacking up to 5 times."
+        }
+      ],
+      "bestWeapons": [
+        "Wind Bow",
+        "Hurricane Quiver"
+      ],
+      "artifacts": [
+        "Crit Precision Set",
+        "Storm Hunter Set"
+      ],
+      "statPriority": [
+        "CRIT Rate",
+        "CRIT DMG",
+        "ATK%",
+        "Wind DMG Bonus"
+      ],
+      "f2pBuild": "Needs good CRIT substats to reach her potential. Harder to build F2P. Only pull if you have CRIT artifacts ready.",
+      "bestTeammates": [
+        "Woo Jinchul",
+        "Lee Joohee",
+        "Sugamoto Reggie"
+      ],
+      "antiSynergy": [],
+      "description": "Good wind ranged DPS but situational. Strong in wind-specific content; less impressive in general use."
+    },
+    {
+      "name": "Tawata Kanae",
+      "element": "fire",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "S",
+      "trend": "stable",
+      "pullValue": "Situational",
+      "role": "Fire Zone Buffer / Sub DPS",
+      "playstyle": "Fire fighter with unique zone-placement mechanics. Persistent fire zones continuously buff party members inside them. Niche but very strong in the right team with good positioning.",
+      "stats": {
+        "attack": 3,
+        "defense": 2,
+        "speed": 3,
+        "utility": 4
+      },
+      "skills": [
+        {
+          "name": "Flame Brand",
+          "type": "Active",
+          "desc": "Slash leaving a persistent fire zone. Allies in zone gain ATK buff."
+        },
+        {
+          "name": "Inferno Domain",
+          "type": "Ultimate",
+          "desc": "Creates large fire zone boosting all fire damage + dealing continuous AoE."
+        },
+        {
+          "name": "Ember Kick",
+          "type": "Active",
+          "desc": "Knockback fire kick. Good for crowd control in challenging content."
+        },
+        {
+          "name": "Flame Empowerment",
+          "type": "Passive",
+          "desc": "Allies in any fire zone gain bonus fire damage dealt. Synergizes perfectly with Inferno Domain."
+        }
+      ],
+      "bestWeapons": [
+        "Flame Blade",
+        "Fire Dancer's Sword"
+      ],
+      "artifacts": [
+        "Flame Walker Set",
+        "Pyro Warrior Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Fire DMG Bonus",
+        "Cooldown Reduction",
+        "CRIT Rate"
+      ],
+      "f2pBuild": "Cooldown Reduction substats are priority. Even SR fire weapons work if CDR is high enough.",
+      "bestTeammates": [
+        "Liu Zhigang",
+        "Choi Jong-In",
+        "Gina"
+      ],
+      "antiSynergy": [
+        "Zone mechanics punish in mobile boss fights requiring constant repositioning"
+      ],
+      "description": "Strong fire team support with good positional play. Pull specifically if running Liu Zhigang + Choi Jong-In."
+    },
+    {
+      "name": "Go Gunhee",
+      "element": "light",
+      "class": "Tank",
+      "rarity": "SSR",
+      "tier": "A",
+      "trend": "stable",
+      "pullValue": "Situational",
+      "role": "Tank",
+      "playstyle": "Light tank with aggressive taunting and counter-damage mechanics. Less durable than Thomas Andre but deals more damage on counters. Good in content that punishes pure passive tanking.",
+      "stats": {
+        "attack": 3,
+        "defense": 4,
+        "speed": 2,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Executive Order",
+          "type": "Active",
+          "desc": "Taunt all nearby enemies + counter-damage buff for 8 seconds."
+        },
+        {
+          "name": "Authority Strike",
+          "type": "Ultimate",
+          "desc": "Massive single-target light strike, damage scaling off DEF stat."
+        },
+        {
+          "name": "Shield of Command",
+          "type": "Active",
+          "desc": "Short AoE knockback with a temporary immunity frame."
+        },
+        {
+          "name": "Iron Will",
+          "type": "Passive",
+          "desc": "Reflects 15% of damage received back to attacker as light damage."
+        }
+      ],
+      "bestWeapons": [
+        "Commander's Shield",
+        "Authority's Aegis"
+      ],
+      "artifacts": [
+        "Iron Guard Set",
+        "Noble Guardian Set"
+      ],
+      "statPriority": [
+        "DEF%",
+        "HP%",
+        "Light DMG Bonus",
+        "Block Rate"
+      ],
+      "f2pBuild": "DEF% substats are key. Accessible for F2P in SR gear.",
+      "bestTeammates": [
+        "Cha Hae-In",
+        "Min Byung-Gu",
+        "Thomas Andre"
+      ],
+      "antiSynergy": [
+        "Does not match Thomas Andre's raw survivability"
+      ],
+      "description": "Decent light tank but generally outclassed by Thomas Andre. Pull if you need a light tank and cannot obtain Thomas Andre."
+    },
+    {
+      "name": "Akari",
+      "element": "light",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "A",
+      "trend": "rising",
+      "pullValue": "Good",
+      "role": "Sub DPS",
+      "playstyle": "Aggressive light fighter with strong skill-cancel combos. Rising in relevance after recent balance adjustments. Good standalone DPS and a solid alternative to Cha Hae-In in light teams.",
+      "stats": {
+        "attack": 4,
+        "defense": 2,
+        "speed": 4,
+        "utility": 2
+      },
+      "skills": [
+        {
+          "name": "Holy Blade",
+          "type": "Active",
+          "desc": "Fast light sword combo. Each hit buffs the next cast, stacking up to 3x."
+        },
+        {
+          "name": "Divine Judgement",
+          "type": "Ultimate",
+          "desc": "High-damage light slam AoE with a natural cancel window skilled players exploit."
+        },
+        {
+          "name": "Light Dash",
+          "type": "Active",
+          "desc": "Quick dodge with follow-up light strike. Evasion + damage combo."
+        },
+        {
+          "name": "Rising Star",
+          "type": "Passive",
+          "desc": "Each kill increases her ATK for the stage duration. Snowballs in multi-wave content."
+        }
+      ],
+      "bestWeapons": [
+        "Holy Sword",
+        "Light Fighter's Blade"
+      ],
+      "artifacts": [
+        "Radiant Warrior Set",
+        "Light Blade Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Light DMG Bonus",
+        "CRIT Rate",
+        "SPD"
+      ],
+      "f2pBuild": "Efficient with SR gear. Good substat rolls outperform SS artifacts with bad substats for her.",
+      "bestTeammates": [
+        "Min Byung-Gu",
+        "Thomas Andre",
+        "Cha Hae-In"
+      ],
+      "antiSynergy": [],
+      "description": "Solid light fighter on a rising trend. Good pull if you lack Cha Hae-In or want a second light DPS."
+    },
+    {
+      "name": "Park Heejin",
+      "element": "water",
+      "class": "Support",
+      "rarity": "SSR",
+      "tier": "A",
+      "trend": "stable",
+      "pullValue": "Situational",
+      "role": "Buffer / Debuff Cleanser",
+      "playstyle": "Water support focused on attack buffs and on-demand debuff cleansing. Less healing than Alicia but provides unique cleanse utility valuable in specific debuff-heavy content.",
+      "stats": {
+        "attack": 2,
+        "defense": 3,
+        "speed": 4,
+        "utility": 4
+      },
+      "skills": [
+        {
+          "name": "Water Boost",
+          "type": "Active",
+          "desc": "Single target ATK buff + minor heal. Best support skill in her kit."
+        },
+        {
+          "name": "Tidal Wave",
+          "type": "Ultimate",
+          "desc": "AoE water damage that cleanses all debuffs from allies hit."
+        },
+        {
+          "name": "Cleansing Stream",
+          "type": "Active",
+          "desc": "Removes one debuff from a target ally. On-demand cleanse."
+        },
+        {
+          "name": "Hydro Aura",
+          "type": "Passive",
+          "desc": "Allies near her gain slight HP regeneration. Minor but consistent sustain."
+        }
+      ],
+      "bestWeapons": [
+        "Sea Mage's Wand",
+        "Purifying Staff"
+      ],
+      "artifacts": [
+        "Ocean Mage Set",
+        "Tide Support Set"
+      ],
+      "statPriority": [
+        "HP%",
+        "SPD",
+        "Healing Bonus",
+        "Water DMG Bonus"
+      ],
+      "f2pBuild": "SPD substats matter most. SR gear is entirely sufficient. Very F2P friendly.",
+      "bestTeammates": [
+        "Alicia",
+        "Any DPS",
+        "Thomas Andre"
+      ],
+      "antiSynergy": [],
+      "description": "Niche but useful support. Pull specifically if you need debuff cleanse — Alicia covers her role better in general content."
+    },
+    {
+      "name": "Lim Tae-Gyu",
+      "element": "fire",
+      "class": "Ranger",
+      "rarity": "SSR",
+      "tier": "A",
+      "trend": "stable",
+      "pullValue": "Situational",
+      "role": "Ranged DPS",
+      "playstyle": "Straightforward fire ranger with consistent ranged DPS. Lower ceiling than Liu Zhigang but much easier to use. The recommended fire DPS for newer players.",
+      "stats": {
+        "attack": 3,
+        "defense": 2,
+        "speed": 4,
+        "utility": 2
+      },
+      "skills": [
+        {
+          "name": "Fire Shot",
+          "type": "Active",
+          "desc": "Single fire projectile with ignite chance on hit."
+        },
+        {
+          "name": "Firestorm Barrage",
+          "type": "Ultimate",
+          "desc": "Multiple fire arrows raining in AoE. Good for grouped enemies."
+        },
+        {
+          "name": "Explosive Arrow",
+          "type": "Active",
+          "desc": "Single explosive fire shot dealing AoE damage on impact."
+        },
+        {
+          "name": "Ignition Mastery",
+          "type": "Passive",
+          "desc": "Ignited enemies take bonus fire damage from all sources."
+        }
+      ],
+      "bestWeapons": [
+        "Fire Bow",
+        "Ignition Quiver"
+      ],
+      "artifacts": [
+        "Pyro Ranger Set",
+        "Fire Precision Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Fire DMG Bonus",
+        "CRIT Rate",
+        "CRIT DMG"
+      ],
+      "f2pBuild": "Good F2P option for fire teams. SR fire bow is entirely sufficient.",
+      "bestTeammates": [
+        "Choi Jong-In",
+        "Tawata Kanae",
+        "Alicia"
+      ],
+      "antiSynergy": [],
+      "description": "Solid A-tier fire ranger. Good for players who need a fire DPS unit and cannot obtain Liu Zhigang."
+    },
+    {
+      "name": "Emma",
+      "element": "water",
+      "class": "Mage",
+      "rarity": "SSR",
+      "tier": "A",
+      "trend": "stable",
+      "pullValue": "Situational",
+      "role": "Mage DPS / Crowd Control",
+      "playstyle": "Water mage with solid AoE damage and freeze/slow crowd control mechanics. Good in water-weak content and for controlling groups of enemies in multi-wave stages.",
+      "stats": {
+        "attack": 3,
+        "defense": 2,
+        "speed": 3,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Frost Bolt",
+          "type": "Active",
+          "desc": "Water projectile slowing target by 25% on hit."
+        },
+        {
+          "name": "Blizzard",
+          "type": "Ultimate",
+          "desc": "Large AoE water storm that freezes all enemies hit for 2 seconds."
+        },
+        {
+          "name": "Ice Lance",
+          "type": "Active",
+          "desc": "Piercing water projectile dealing bonus damage to frozen targets."
+        },
+        {
+          "name": "Cold Mastery",
+          "type": "Passive",
+          "desc": "Frozen enemies take 15% increased damage from all sources."
+        }
+      ],
+      "bestWeapons": [
+        "Frost Tome",
+        "Ice Mage's Staff"
+      ],
+      "artifacts": [
+        "Glacier Set",
+        "Water Scholar Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Water DMG Bonus",
+        "CRIT DMG",
+        "CRIT Rate"
+      ],
+      "f2pBuild": "Good F2P mage. Strong in content where crowd control prevents boss mechanics.",
+      "bestTeammates": [
+        "Park Heejin",
+        "Alicia",
+        "Any physical DPS"
+      ],
+      "antiSynergy": [
+        "Fire-element bosses reduce water damage — swap her out on those fights"
+      ],
+      "description": "A-tier water mage. Situationally strong but not a priority pull unless specifically building a water team."
+    },
+    {
+      "name": "Son Kihoon",
+      "element": "dark",
+      "class": "Tank",
+      "rarity": "SSR",
+      "tier": "A",
+      "trend": "stable",
+      "pullValue": "Situational",
+      "role": "Dark Tank",
+      "playstyle": "The only dark-element tank, filling a unique niche in dark team compositions. Not as durable as Thomas Andre but provides dark-element synergy that pure light tanks cannot offer.",
+      "stats": {
+        "attack": 2,
+        "defense": 5,
+        "speed": 2,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Dark Shield",
+          "type": "Active",
+          "desc": "Dark barrier on lowest-HP ally. Dark damage reduction while shield holds."
+        },
+        {
+          "name": "Shadow Fortress",
+          "type": "Ultimate",
+          "desc": "AoE taunt + party-wide dark damage reduction field for 10 seconds."
+        },
+        {
+          "name": "Dark Slam",
+          "type": "Active",
+          "desc": "Heavy dark attack that taunts all nearby enemies."
+        },
+        {
+          "name": "Void Aura",
+          "type": "Passive",
+          "desc": "Allies near him take slightly reduced damage. Persistent passive field."
+        }
+      ],
+      "bestWeapons": [
+        "Dark Shield",
+        "Shadow Aegis"
+      ],
+      "artifacts": [
+        "Void Guard Set",
+        "Dark Fortress Set"
+      ],
+      "statPriority": [
+        "DEF%",
+        "HP%",
+        "Dark DMG Bonus",
+        "Damage Reduction"
+      ],
+      "f2pBuild": "DEF% and HP% focused. Completely functional in SR gear.",
+      "bestTeammates": [
+        "Sung Jin-Woo",
+        "Charlotte",
+        "Minnie"
+      ],
+      "antiSynergy": [],
+      "description": "Niche dark tank. Pull only if you specifically need a dark-element tank for dark team synergy setups."
+    },
+    {
+      "name": "Gina",
+      "element": "fire",
+      "class": "Mage",
+      "rarity": "SSR",
+      "tier": "A",
+      "trend": "stable",
+      "pullValue": "Situational",
+      "role": "AoE Mage DPS",
+      "playstyle": "Fire mage specializing in wide AoE clear. Excellent for multi-enemy content, weaker in single-target boss fights. Best used in team dungeons and resource stages.",
+      "stats": {
+        "attack": 4,
+        "defense": 1,
+        "speed": 3,
+        "utility": 2
+      },
+      "skills": [
+        {
+          "name": "Fireball",
+          "type": "Active",
+          "desc": "Large fire projectile exploding on impact for wide AoE damage."
+        },
+        {
+          "name": "Meteor Shower",
+          "type": "Ultimate",
+          "desc": "Multiple fire meteors raining in a large area. Best AoE clear skill in the game."
+        },
+        {
+          "name": "Flame Wave",
+          "type": "Active",
+          "desc": "Horizontal fire wave clearing everything in a line."
+        },
+        {
+          "name": "Wildfire",
+          "type": "Passive",
+          "desc": "Killed enemies leave fire patches that deal damage to nearby enemies."
+        }
+      ],
+      "bestWeapons": [
+        "Inferno Tome",
+        "Meteor Wand"
+      ],
+      "artifacts": [
+        "Wildfire Set",
+        "AoE Mage Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Fire DMG Bonus",
+        "AoE DMG Bonus",
+        "CRIT DMG"
+      ],
+      "f2pBuild": "Strong F2P AoE pick. SR fire staff is fully sufficient for her role.",
+      "bestTeammates": [
+        "Choi Jong-In",
+        "Tawata Kanae",
+        "Alicia"
+      ],
+      "antiSynergy": [
+        "Very weak on single-target boss fights — swap her out then"
+      ],
+      "description": "Excellent A-tier AoE mage. Pull if you need multi-enemy clear capability for tower, dungeons, or raids."
+    },
+    {
+      "name": "Sung Il-Hwan",
+      "element": "dark",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "SS",
+      "trend": "rising",
+      "pullValue": "Must Pull",
+      "role": "Main DPS / Burst Assassin",
+      "playstyle": "Jin-Woo's father and one of the most powerful hunters alive. Extreme burst dark DPS with high mobility and a unique self-resurrection mechanic. Top-tier for virtually all content.",
+      "stats": {
+        "attack": 5,
+        "defense": 2,
+        "speed": 5,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Shadow Monarch's Will",
+          "type": "Active",
+          "desc": "Multi-hit dark combo dealing massive damage. Core rotation skill."
+        },
+        {
+          "name": "Ruler's Domain",
+          "type": "Ultimate",
+          "desc": "Calls down dark energy pillars on all enemies in a wide area."
+        },
+        {
+          "name": "Phantom Step",
+          "type": "Active",
+          "desc": "Blink behind target + burst dark strike. Unrivaled gap-closer."
+        },
+        {
+          "name": "Indomitable Will",
+          "type": "Passive",
+          "desc": "Once per fight, prevents lethal damage and grants a brief invincibility window."
+        }
+      ],
+      "bestWeapons": [
+        "Sword of the Ruler",
+        "Il-Hwan's Blade"
+      ],
+      "artifacts": [
+        "Monarch's Wrath Set",
+        "Shadow Sovereign Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Dark DMG Bonus",
+        "CRIT DMG",
+        "CRIT Rate"
+      ],
+      "f2pBuild": "Efficient even with SR dark weapons. His kit compensates for gear gaps better than most SS-tier hunters.",
+      "bestTeammates": [
+        "Sung Jin-Woo",
+        "Seorin",
+        "Alicia"
+      ],
+      "antiSynergy": [],
+      "description": "Jin-Woo's father. Meta-defining dark DPS with a built-in survival passive. Mandatory pull for any serious account."
+    },
+    {
+      "name": "Lennart Niermann",
+      "element": "wind",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "SS",
+      "trend": "rising",
+      "pullValue": "Must Pull",
+      "role": "Main DPS / Wind Synergy Buffer",
+      "playstyle": "Top wind DPS with an unmatched combination of speed, burst damage, and party ATK speed amplification. Best-in-slot for any wind team and a top pick for mixed compositions.",
+      "stats": {
+        "attack": 5,
+        "defense": 2,
+        "speed": 5,
+        "utility": 4
+      },
+      "skills": [
+        {
+          "name": "Gale Execution",
+          "type": "Active",
+          "desc": "Rapid wind multi-slash combo. Applies ATK speed debuff on target."
+        },
+        {
+          "name": "Storm Sovereign",
+          "type": "Ultimate",
+          "desc": "Transforms into a whirlwind dealing continuous wind AoE + buffs party ATK speed."
+        },
+        {
+          "name": "Wind Rupture",
+          "type": "Active",
+          "desc": "Single powerful wind pierce ignoring a portion of target DEF."
+        },
+        {
+          "name": "Tailwind",
+          "type": "Passive",
+          "desc": "Increases all party members' ATK speed by 12% passively."
+        }
+      ],
+      "bestWeapons": [
+        "Niermann's Gale Blade",
+        "Storm Sovereign's Sword"
+      ],
+      "artifacts": [
+        "Wind Sovereign Set",
+        "Tempest Commander Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Wind DMG Bonus",
+        "CRIT DMG",
+        "SPD"
+      ],
+      "f2pBuild": "Good with SR wind weapons but SS weapon significantly amplifies his performance.",
+      "bestTeammates": [
+        "Amamiya Mirei",
+        "Woo Jinchul",
+        "Lee Joohee"
+      ],
+      "antiSynergy": [],
+      "description": "S-rank European hunter and current wind-element meta leader. His party-wide ATK speed passive alone justifies top-tier placement."
+    },
+    {
+      "name": "Cha Hae-In, The Pure Sword Princess",
+      "element": "light",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "SS",
+      "trend": "stable",
+      "pullValue": "Must Pull",
+      "role": "Main DPS / Light Buffer",
+      "playstyle": "Enhanced form of Cha Hae-In with amplified light damage and an upgraded version of the Jin-Woo synergy passive. Stronger in every metric than her base form. Best light DPS in the game.",
+      "stats": {
+        "attack": 5,
+        "defense": 2,
+        "speed": 5,
+        "utility": 4
+      },
+      "skills": [
+        {
+          "name": "Pure Sword Flurry",
+          "type": "Active",
+          "desc": "Enhanced multi-hit sword combo. Faster and harder-hitting than base form."
+        },
+        {
+          "name": "Sword Princess Awakening",
+          "type": "Ultimate",
+          "desc": "Massive light energy slash creating a prolonged light field. Highest light damage output in the game."
+        },
+        {
+          "name": "Radiant Edge",
+          "type": "Active",
+          "desc": "Charged single strike dealing extreme light burst. Cancel-combo viable."
+        },
+        {
+          "name": "Pure Bond",
+          "type": "Passive",
+          "desc": "Enhanced Companion Bond — party ATK buff triggers with any dark hunter, not just Jin-Woo."
+        }
+      ],
+      "bestWeapons": [
+        "Pure Sword Princess's Blade",
+        "Radiant Longsword"
+      ],
+      "artifacts": [
+        "Pure Light Set",
+        "Sword Princess Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Light DMG Bonus",
+        "CRIT DMG",
+        "CRIT Rate"
+      ],
+      "f2pBuild": "Functions well with SR light weapons. SS weapon significantly boosts potential but not required for core gameplay.",
+      "bestTeammates": [
+        "Sung Jin-Woo",
+        "Min Byung-Gu",
+        "Thomas Andre"
+      ],
+      "antiSynergy": [],
+      "description": "Cha Hae-In's ultimate form. Strictly superior to her base version in every metric. Run her over base Cha Hae-In in all content."
+    },
+    {
+      "name": "Isla Wright",
+      "element": "dark",
+      "class": "Ranger",
+      "rarity": "SSR",
+      "tier": "S+",
+      "trend": "stable",
+      "pullValue": "Good",
+      "role": "Ranged DPS / Dark Debuffer",
+      "playstyle": "High-range dark ranger who applies persistent debuffs amplifying all dark team damage. Excels in sustained boss fights where debuff stacking provides compounding returns.",
+      "stats": {
+        "attack": 4,
+        "defense": 2,
+        "speed": 4,
+        "utility": 4
+      },
+      "skills": [
+        {
+          "name": "Darkness Arrow",
+          "type": "Active",
+          "desc": "Dark-infused arrows applying a stacking damage vulnerability debuff."
+        },
+        {
+          "name": "Shadow Rain",
+          "type": "Ultimate",
+          "desc": "Barrage of dark arrows on a large area applying bulk debuff stacks."
+        },
+        {
+          "name": "Void Shot",
+          "type": "Active",
+          "desc": "Precision dark shot that strips one buff from the target."
+        },
+        {
+          "name": "Dark Vulnerability",
+          "type": "Passive",
+          "desc": "Enemies hit by dark skills on a debuffed target take bonus dark damage. Scales with stacks."
+        }
+      ],
+      "bestWeapons": [
+        "Shadow Bow",
+        "Dark Hunter's Quiver"
+      ],
+      "artifacts": [
+        "Darkness Precision Set",
+        "Void Hunter Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Dark DMG Bonus",
+        "CRIT Rate",
+        "CRIT DMG"
+      ],
+      "f2pBuild": "Good investment for dark team F2P players. SR dark bow sufficient for her debuff role.",
+      "bestTeammates": [
+        "Sung Jin-Woo",
+        "Sung Il-Hwan",
+        "Charlotte"
+      ],
+      "antiSynergy": [],
+      "description": "S+ dark ranger who amplifies entire dark team output through debuff stacking. Strong pull for dark-heavy compositions."
+    },
+    {
+      "name": "Lee Bora",
+      "element": "dark",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "S+",
+      "trend": "stable",
+      "pullValue": "Good",
+      "role": "Dark Bruiser / Team Buffer",
+      "playstyle": "Dark fighter specializing in close-range pressure and team-wide dark damage amplification via energy stacks. Different from Seorin — buffs are personal-power focused rather than debuff-stacking.",
+      "stats": {
+        "attack": 4,
+        "defense": 3,
+        "speed": 4,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Dark Fang",
+          "type": "Active",
+          "desc": "Aggressive dark melee combo building dark energy stacks."
+        },
+        {
+          "name": "Apex Dark Assault",
+          "type": "Ultimate",
+          "desc": "Rushes all enemies in range with rapid dark strikes. Party-wide dark DMG buff on cast."
+        },
+        {
+          "name": "Shadow Dive",
+          "type": "Active",
+          "desc": "Diving dark strike from above with knockdown. Resets on kill."
+        },
+        {
+          "name": "Dark Energy Surge",
+          "type": "Passive",
+          "desc": "When dark energy stacks reach max, all party dark damage is amplified for 8 seconds."
+        }
+      ],
+      "bestWeapons": [
+        "Dark Fang Blade",
+        "Shadow Fighter's Gauntlet"
+      ],
+      "artifacts": [
+        "Dark Surge Set",
+        "Shadow Warrior Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Dark DMG Bonus",
+        "CRIT DMG",
+        "SPD"
+      ],
+      "f2pBuild": "One of the more accessible S+ tier dark hunters for F2P. Kit rewards mechanical investment over gear investment.",
+      "bestTeammates": [
+        "Sung Jin-Woo",
+        "Seorin",
+        "Charlotte"
+      ],
+      "antiSynergy": [],
+      "description": "Solid S+ dark fighter with team amplification value. Strong alternative to Seorin with a different playstyle emphasis."
+    },
+    {
+      "name": "Meilin Fisher",
+      "element": "water",
+      "class": "Support",
+      "rarity": "SSR",
+      "tier": "S+",
+      "trend": "stable",
+      "pullValue": "Good",
+      "role": "Buffer / Water Synergy Support",
+      "playstyle": "Premier water support providing sustained healing, ATK buffs, and water elemental damage amplification. Best support for water teams and a strong second slot even when Alicia is already present.",
+      "stats": {
+        "attack": 2,
+        "defense": 4,
+        "speed": 3,
+        "utility": 5
+      },
+      "skills": [
+        {
+          "name": "Aqua Tide",
+          "type": "Active",
+          "desc": "Party-wide healing wave with water shield on all allies."
+        },
+        {
+          "name": "Ocean's Embrace",
+          "type": "Ultimate",
+          "desc": "Full party heal + ATK and SPD buff for all water-element allies for 12 seconds."
+        },
+        {
+          "name": "Cleansing Wave",
+          "type": "Active",
+          "desc": "Cleanses all debuffs from a single ally and grants a brief immunity window."
+        },
+        {
+          "name": "Water Resonance",
+          "type": "Passive",
+          "desc": "Each heal cast buffs water-element allies' damage by 8% for 6 seconds, stacking up to 3 times."
+        }
+      ],
+      "bestWeapons": [
+        "Ocean Scepter",
+        "Water Fisher's Wand"
+      ],
+      "artifacts": [
+        "Tidal Support Set",
+        "Ocean Sage Set"
+      ],
+      "statPriority": [
+        "HP%",
+        "Healing Bonus",
+        "SPD",
+        "Water DMG Bonus"
+      ],
+      "f2pBuild": "HP and SPD focused — avoid ATK artifacts entirely. SR gear fully sufficient.",
+      "bestTeammates": [
+        "Alicia",
+        "Seo Jiwoo",
+        "Emma Laurent"
+      ],
+      "antiSynergy": [],
+      "description": "Top water team support and general-purpose buffer. Near-mandatory in dedicated water compositions."
+    },
+    {
+      "name": "Seo Jiwoo",
+      "element": "water",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "S+",
+      "trend": "stable",
+      "pullValue": "Good",
+      "role": "Water DPS / Bruiser",
+      "playstyle": "Aggressive water fighter with high personal DPS and built-in survivability. The go-to water DPS unit. Excels in water-weak content and arena with straightforward but rewarding combos.",
+      "stats": {
+        "attack": 5,
+        "defense": 2,
+        "speed": 4,
+        "utility": 2
+      },
+      "skills": [
+        {
+          "name": "Aqua Fist",
+          "type": "Active",
+          "desc": "Powerful water-element punch combo. Applies water seal debuff slowing target SPD."
+        },
+        {
+          "name": "Tidal Fury",
+          "type": "Ultimate",
+          "desc": "Unleashes a torrent of water punches in a wide AoE. High burst damage in a short window."
+        },
+        {
+          "name": "Current Dash",
+          "type": "Active",
+          "desc": "Water-dash through enemies dealing damage and a brief stun on the first target hit."
+        },
+        {
+          "name": "Aqua Resilience",
+          "type": "Passive",
+          "desc": "Water-element damage taken reduced by 20%. HP absorb on every 5th hit dealt."
+        }
+      ],
+      "bestWeapons": [
+        "Tidal Fist",
+        "Ocean Brawler's Gauntlet"
+      ],
+      "artifacts": [
+        "Wave Warrior Set",
+        "Aqua Fighter Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Water DMG Bonus",
+        "CRIT Rate",
+        "CRIT DMG"
+      ],
+      "f2pBuild": "Good F2P water DPS. SR water gauntlet works through most content. Upgrade CRIT Rate substats first.",
+      "bestTeammates": [
+        "Meilin Fisher",
+        "Alicia",
+        "Park Heejin"
+      ],
+      "antiSynergy": [],
+      "description": "Best offensive water hunter. Pull if you need a water DPS or are countering fire-heavy content."
+    },
+    {
+      "name": "Silver Mane Baek Yoonho",
+      "element": "earth",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "S+",
+      "trend": "rising",
+      "pullValue": "Good",
+      "role": "Tank-DPS Hybrid / Earth Buffer",
+      "playstyle": "Enhanced version of Baek Yoonho with dramatically improved damage output and party earth DMG amplification. Executes the hybrid tank-DPS role at a meaningfully higher level than his base form.",
+      "stats": {
+        "attack": 4,
+        "defense": 4,
+        "speed": 3,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Silver Claw Assault",
+          "type": "Active",
+          "desc": "Earth-enhanced claw combo applying DEF reduction and ATK buff on self."
+        },
+        {
+          "name": "White Mane Apex",
+          "type": "Ultimate",
+          "desc": "Transformation dramatically boosting ATK, DEF, and SPD simultaneously for 15 seconds."
+        },
+        {
+          "name": "Earth Shatter",
+          "type": "Active",
+          "desc": "Ground slam creating earth spikes on impact. AoE damage + brief stun."
+        },
+        {
+          "name": "Silver Pack Bond",
+          "type": "Passive",
+          "desc": "Nearby allies gain earth DEF bonus. On kill, grants party ATK buff for 6 seconds."
+        }
+      ],
+      "bestWeapons": [
+        "Silver Mane's Claw",
+        "Earth Alpha's Gauntlet"
+      ],
+      "artifacts": [
+        "Silver Pack Set",
+        "Earth Commander Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "DEF%",
+        "Earth DMG Bonus",
+        "CRIT Rate"
+      ],
+      "f2pBuild": "Balanced ATK/DEF build achievable in SR gear. More accessible than most S+ units.",
+      "bestTeammates": [
+        "Lee Joohee",
+        "Alicia",
+        "Sian Halat"
+      ],
+      "antiSynergy": [],
+      "description": "The definitive version of Baek Yoonho. Pull over base Baek Yoonho for earth team compositions."
+    },
+    {
+      "name": "Sung Jinah",
+      "element": "light",
+      "class": "Ranger",
+      "rarity": "SSR",
+      "tier": "A",
+      "trend": "stable",
+      "pullValue": "Situational",
+      "role": "Ranged Sub DPS / Buffer",
+      "playstyle": "Jin-Woo's younger sister. Light ranger with moderate personal DPS and a unique passive that buffs dark-element allies — creating a novel light/dark cross-element synergy.",
+      "stats": {
+        "attack": 3,
+        "defense": 2,
+        "speed": 4,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Light Arrow",
+          "type": "Active",
+          "desc": "Rapid-fire light arrows. Applies ATK down debuff to the target."
+        },
+        {
+          "name": "Jinah's Resolve",
+          "type": "Ultimate",
+          "desc": "Volley of light arrows in a wide AoE. Grants party ATK buff after cast."
+        },
+        {
+          "name": "Swift Shot",
+          "type": "Active",
+          "desc": "Single fast light projectile. Very low cooldown — fills rotation gaps."
+        },
+        {
+          "name": "Sibling Bond",
+          "type": "Passive",
+          "desc": "When a dark-element ally is in party, gains bonus light DMG and buffs their dark DMG."
+        }
+      ],
+      "bestWeapons": [
+        "Light Archer's Bow",
+        "Jinah's Longbow"
+      ],
+      "artifacts": [
+        "Light Precision Set",
+        "Swift Archer Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Light DMG Bonus",
+        "CRIT Rate",
+        "SPD"
+      ],
+      "f2pBuild": "Very F2P friendly. SR light bow is fully sufficient. Good early-account pick.",
+      "bestTeammates": [
+        "Sung Jin-Woo",
+        "Min Byung-Gu",
+        "Cha Hae-In"
+      ],
+      "antiSynergy": [],
+      "description": "Provides unique cross-element synergy between light and dark compositions. Rewarding to run alongside Sung Jin-Woo."
+    },
+    {
+      "name": "Yoo Soohyun",
+      "element": "fire",
+      "class": "Mage",
+      "rarity": "SSR",
+      "tier": "S",
+      "trend": "stable",
+      "pullValue": "Situational",
+      "role": "Burst Mage DPS",
+      "playstyle": "Fire mage with exceptionally high burst windows tied to cooldown alignment. When skills are synchronized she outputs massive single-target fire damage, hitting comparably to Liu Zhigang at peak.",
+      "stats": {
+        "attack": 4,
+        "defense": 1,
+        "speed": 3,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Flame Surge",
+          "type": "Active",
+          "desc": "Channeled fire blast dealing increasing damage the longer it's held. Core burst tool."
+        },
+        {
+          "name": "Inferno Release",
+          "type": "Ultimate",
+          "desc": "Massive fire pillar on single target. Highest single-cast fire damage outside of Liu Zhigang."
+        },
+        {
+          "name": "Ember Pulse",
+          "type": "Active",
+          "desc": "Quick fire pulse that resets Flame Surge cooldown on crit. Enables back-to-back burst windows."
+        },
+        {
+          "name": "Pyro Mastery",
+          "type": "Passive",
+          "desc": "Each fire skill hit reduces Inferno Release cooldown by 0.5 seconds."
+        }
+      ],
+      "bestWeapons": [
+        "Soohyun's Fire Staff",
+        "Inferno Tome"
+      ],
+      "artifacts": [
+        "Pyro Surge Set",
+        "Flame Mage Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Fire DMG Bonus",
+        "CRIT DMG",
+        "Cooldown Reduction"
+      ],
+      "f2pBuild": "CDR substats are mandatory for her rotation. Effective in SR fire gear if CDR is maxed.",
+      "bestTeammates": [
+        "Liu Zhigang",
+        "Choi Jong-In",
+        "Alicia"
+      ],
+      "antiSynergy": [],
+      "description": "S-tier fire burst mage. Good pull for fire teams that already have Liu Zhigang and need a secondary fire DPS."
+    },
+    {
+      "name": "Laura Walker",
+      "element": "water",
+      "class": "Ranger",
+      "rarity": "SSR",
+      "tier": "S",
+      "trend": "stable",
+      "pullValue": "Situational",
+      "role": "Ranged DPS / Resistance Shredder",
+      "playstyle": "Water ranger specializing in long-range DPS paired with water resistance reduction debuffs. Fills a utility role in water teams by lowering boss elemental resistance, amplifying the whole team.",
+      "stats": {
+        "attack": 4,
+        "defense": 2,
+        "speed": 4,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Aqua Shot",
+          "type": "Active",
+          "desc": "Rapid water arrows applying water resistance reduction on the target."
+        },
+        {
+          "name": "Tidal Barrage",
+          "type": "Ultimate",
+          "desc": "Wide fan of water arrows dealing high damage + water DEF shred to all hit."
+        },
+        {
+          "name": "Precision Bolt",
+          "type": "Active",
+          "desc": "Single precise water shot dealing bonus damage to targets below 50% HP."
+        },
+        {
+          "name": "Aqua Weakness",
+          "type": "Passive",
+          "desc": "Targets hit 5+ times have their water resistance reduced. Amplifies entire water team."
+        }
+      ],
+      "bestWeapons": [
+        "Aqua Bow",
+        "Walker's Water Quiver"
+      ],
+      "artifacts": [
+        "Water Precision Set",
+        "Aqua Hunter Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Water DMG Bonus",
+        "CRIT Rate",
+        "CRIT DMG"
+      ],
+      "f2pBuild": "Good water DPS alternative for F2P. SR water gear fully functional.",
+      "bestTeammates": [
+        "Seo Jiwoo",
+        "Meilin Fisher",
+        "Alicia"
+      ],
+      "antiSynergy": [],
+      "description": "Solid water ranger and resistance shredder. Pull if building a water team and need ranged DPS with elemental utility."
+    },
+    {
+      "name": "Sian Halat",
+      "element": "earth",
+      "class": "Tank",
+      "rarity": "SSR",
+      "tier": "S",
+      "trend": "stable",
+      "pullValue": "Situational",
+      "role": "Tank / Earth Shielder",
+      "playstyle": "Earth tank with strong personal damage mitigation and party shielding mechanics. An active-playstyle alternative to Thomas Andre for earth-heavy team compositions.",
+      "stats": {
+        "attack": 2,
+        "defense": 5,
+        "speed": 2,
+        "utility": 4
+      },
+      "skills": [
+        {
+          "name": "Stone Wall",
+          "type": "Active",
+          "desc": "Creates an earth barrier that taunts nearby enemies and absorbs incoming damage."
+        },
+        {
+          "name": "Granite Fortress",
+          "type": "Ultimate",
+          "desc": "Party-wide earth shield absorbing significant damage. Earth allies gain DEF bonus while shield holds."
+        },
+        {
+          "name": "Quake Slam",
+          "type": "Active",
+          "desc": "Earth ground slam with knockback and brief stun on all hit targets."
+        },
+        {
+          "name": "Bedrock",
+          "type": "Passive",
+          "desc": "When HP is above 60%, incoming damage reduced by 15%. Consistently active mitigation."
+        }
+      ],
+      "bestWeapons": [
+        "Granite Shield",
+        "Earth Guardian's Aegis"
+      ],
+      "artifacts": [
+        "Stone Fortress Set",
+        "Earth Guard Set"
+      ],
+      "statPriority": [
+        "DEF%",
+        "HP%",
+        "Earth DMG Bonus",
+        "Damage Reduction"
+      ],
+      "f2pBuild": "Accessible for F2P in SR gear. Great value tank for earth team compositions.",
+      "bestTeammates": [
+        "Silver Mane Baek Yoonho",
+        "Lee Joohee",
+        "Alicia"
+      ],
+      "antiSynergy": [
+        "Outclassed by Thomas Andre in non-earth content"
+      ],
+      "description": "Solid earth tank with earth-specific party shielding. Pull if running an earth team that needs a dedicated tank."
+    },
+    {
+      "name": "Meri Laine",
+      "element": "light",
+      "class": "Support",
+      "rarity": "SSR",
+      "tier": "S",
+      "trend": "stable",
+      "pullValue": "Good",
+      "role": "Healer / ATK Speed Buffer",
+      "playstyle": "Light support with a unique focus on attack speed amplification rather than raw healing. Pairs exceptionally with fast attack speed DPS units like Cha Hae-In and Lennart Niermann.",
+      "stats": {
+        "attack": 2,
+        "defense": 3,
+        "speed": 5,
+        "utility": 5
+      },
+      "skills": [
+        {
+          "name": "Light Mend",
+          "type": "Active",
+          "desc": "Targeted heal with bonus heal over time. Auto-prioritizes lowest-HP ally."
+        },
+        {
+          "name": "Laine's Blessing",
+          "type": "Ultimate",
+          "desc": "Full party heal + ATK speed buff for all allies for 15 seconds. Strongest ATK speed buff in the game."
+        },
+        {
+          "name": "Radiant Cleanse",
+          "type": "Active",
+          "desc": "Removes all debuffs from one ally and grants a brief speed boost."
+        },
+        {
+          "name": "Lighthearted",
+          "type": "Passive",
+          "desc": "Allies healed by her skills gain 8% ATK speed for 6 seconds. Consistently active."
+        }
+      ],
+      "bestWeapons": [
+        "Laine's Light Staff",
+        "Swift Healer's Wand"
+      ],
+      "artifacts": [
+        "Swift Light Set",
+        "Radiant Speed Set"
+      ],
+      "statPriority": [
+        "HP%",
+        "SPD",
+        "Healing Bonus",
+        "Light DMG Bonus"
+      ],
+      "f2pBuild": "SPD is the most critical substat. HP% second. Fully functional in SR gear.",
+      "bestTeammates": [
+        "Cha Hae-In",
+        "Lennart Niermann",
+        "Amamiya Mirei"
+      ],
+      "antiSynergy": [],
+      "description": "Excellent light support specializing in ATK speed amplification. Best-in-slot for speed-scaling DPS teams."
+    },
+    {
+      "name": "Sugimoto Reiji",
+      "element": "wind",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "S",
+      "trend": "stable",
+      "pullValue": "Situational",
+      "role": "Wind Bruiser / Interrupt Specialist",
+      "playstyle": "Aggressive wind fighter focused on stagger and interruption mechanics. Excellent at canceling enemy skill casts and generating break meter damage. Valued in high-difficulty content.",
+      "stats": {
+        "attack": 4,
+        "defense": 2,
+        "speed": 4,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Gale Slash",
+          "type": "Active",
+          "desc": "Fast wind sword combo with high stagger value. Builds boss break meter efficiently."
+        },
+        {
+          "name": "Tempest Break",
+          "type": "Ultimate",
+          "desc": "Powerful single-target wind assault. Reliably breaks boss shields via large stagger burst."
+        },
+        {
+          "name": "Wind Counter",
+          "type": "Active",
+          "desc": "Parry frame followed by a powerful wind counter-attack. Interrupts mid-cast enemy skills."
+        },
+        {
+          "name": "Gale Mastery",
+          "type": "Passive",
+          "desc": "Wind skills deal bonus damage to staggered or broken-stance enemies."
+        }
+      ],
+      "bestWeapons": [
+        "Reiji's Wind Katana",
+        "Stagger Blade"
+      ],
+      "artifacts": [
+        "Wind Break Set",
+        "Gale Fighter Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Wind DMG Bonus",
+        "CRIT Rate",
+        "SPD"
+      ],
+      "f2pBuild": "SR wind weapon is sufficient. Best substat priority is SPD then CRIT Rate.",
+      "bestTeammates": [
+        "Lennart Niermann",
+        "Amamiya Mirei",
+        "Lee Joohee"
+      ],
+      "antiSynergy": [],
+      "description": "Solid wind fighter with unique interrupt utility. Pull if you need a wind DPS who can also manage boss mechanics reliably."
+    },
+    {
+      "name": "Antoine Martinez",
+      "element": "fire",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "S",
+      "trend": "stable",
+      "pullValue": "Good",
+      "role": "Fire Bruiser / Sub DPS",
+      "playstyle": "French S-rank hunter with aggressive fire melee combos and strong self-sustain. A durable fire fighter who can take hits while dealing consistent damage. Easier to play than Liu Zhigang with a lower ceiling.",
+      "stats": {
+        "attack": 4,
+        "defense": 3,
+        "speed": 3,
+        "utility": 2
+      },
+      "skills": [
+        {
+          "name": "Inferno Rush",
+          "type": "Active",
+          "desc": "Fiery charge attack dealing damage to all in path. Applies ignite."
+        },
+        {
+          "name": "Blaze of Glory",
+          "type": "Ultimate",
+          "desc": "Explosive fire energy burst in a large AoE. Gains brief invincibility during cast."
+        },
+        {
+          "name": "Flame Guard",
+          "type": "Active",
+          "desc": "Fire counter stance — if hit during active frames, retaliates with a powerful fire burst."
+        },
+        {
+          "name": "Ember Resolve",
+          "type": "Passive",
+          "desc": "When HP drops below 40%, gains fire DMG boost and regenerates HP over 10 seconds."
+        }
+      ],
+      "bestWeapons": [
+        "Martinez's Flame Sword",
+        "French Knight's Blade"
+      ],
+      "artifacts": [
+        "Glory Flame Set",
+        "Blaze Knight Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Fire DMG Bonus",
+        "CRIT DMG",
+        "HP%"
+      ],
+      "f2pBuild": "HP% substats help activate his passive more reliably. SR fire weapon works well throughout.",
+      "bestTeammates": [
+        "Liu Zhigang",
+        "Choi Jong-In",
+        "Tawata Kanae"
+      ],
+      "antiSynergy": [],
+      "description": "Durable fire bruiser with good personal sustain. Recommended for players who want a fire DPS that can take hits in harder content."
+    },
+    {
+      "name": "Hwang Dongsoo",
+      "element": "earth",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "S",
+      "trend": "falling",
+      "pullValue": "Situational",
+      "role": "Brawler / Earth Bruiser",
+      "playstyle": "Powerful earth brawler relying on raw strength and durability over elemental synergy. Hits hard in single-target scenarios but lacks the team utility of comparable S-tier hunters.",
+      "stats": {
+        "attack": 4,
+        "defense": 3,
+        "speed": 2,
+        "utility": 1
+      },
+      "skills": [
+        {
+          "name": "Crushing Fist",
+          "type": "Active",
+          "desc": "Heavy earth-enhanced punch combo with knockback. High stagger on boss fights."
+        },
+        {
+          "name": "Brute Force",
+          "type": "Ultimate",
+          "desc": "Single massive earth strike with very high single-target damage and knockdown."
+        },
+        {
+          "name": "Earthen Charge",
+          "type": "Active",
+          "desc": "Earth-powered tackle dealing damage and briefly stunning the first target hit."
+        },
+        {
+          "name": "Iron Body",
+          "type": "Passive",
+          "desc": "Reduces damage taken by 10% permanently. Scales with DEF stat bonus."
+        }
+      ],
+      "bestWeapons": [
+        "Iron Fist",
+        "Earth Brawler's Gauntlet"
+      ],
+      "artifacts": [
+        "Brawler's Might Set",
+        "Iron Earth Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "DEF%",
+        "Earth DMG Bonus",
+        "HP%"
+      ],
+      "f2pBuild": "Balanced ATK/DEF build works in SR gear. Good option if you need an earth DPS early.",
+      "bestTeammates": [
+        "Silver Mane Baek Yoonho",
+        "Sian Halat",
+        "Alicia"
+      ],
+      "antiSynergy": [
+        "Lacks team utility — becomes a liability in high-difficulty content needing buffs/debuffs"
+      ],
+      "description": "Solid earth brawler but falling in meta relevance. Worth using if you have him; not worth specifically pulling in the current patch."
+    },
+    {
+      "name": "SOYEON",
+      "element": "dark",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "S+",
+      "trend": "stable",
+      "pullValue": "Good",
+      "role": "Dark DPS / Performance Buffer",
+      "playstyle": "Leader of the G(I)-DLE collab unit. Aggressive dark fighter with performance-themed skills. Strong burst DPS with a party-wide ATK buff that activates after Ultimate cast.",
+      "stats": {
+        "attack": 5,
+        "defense": 2,
+        "speed": 4,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Stage Domination",
+          "type": "Active",
+          "desc": "Dark-infused performance attack hitting multiple times with high crit rate."
+        },
+        {
+          "name": "Queendom",
+          "type": "Ultimate",
+          "desc": "Massive AoE dark damage + party-wide ATK boost for 12 seconds after cast."
+        },
+        {
+          "name": "Dark Spotlight",
+          "type": "Active",
+          "desc": "Marks a single target with dark energy, increasing dark DMG they take for 8 seconds."
+        },
+        {
+          "name": "Leader's Presence",
+          "type": "Passive",
+          "desc": "When other G(I)-DLE hunters are in party, gains bonus ATK%. Standalone remains competitive."
+        }
+      ],
+      "bestWeapons": [
+        "Queen's Dark Blade",
+        "Performance Edge"
+      ],
+      "artifacts": [
+        "Queendom Set",
+        "Dark Stage Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Dark DMG Bonus",
+        "CRIT DMG",
+        "CRIT Rate"
+      ],
+      "f2pBuild": "SR dark weapon functional. Pull during collaboration event rerun if available.",
+      "bestTeammates": [
+        "MINNIE",
+        "MIYEON",
+        "Sung Jin-Woo"
+      ],
+      "antiSynergy": [],
+      "description": "SOYEON leads the G(I)-DLE collab roster. S+ dark DPS with party ATK buff value. Strong solo and in collab-unit teams."
+    },
+    {
+      "name": "MIYEON",
+      "element": "light",
+      "class": "Support",
+      "rarity": "SSR",
+      "tier": "S",
+      "trend": "stable",
+      "pullValue": "Good",
+      "role": "Buffer / Light Support",
+      "playstyle": "Light support from the G(I)-DLE collaboration with performance-themed healing and buff skills. Provides party ATK and SPD buffs with moderate healing. Good universal support alternative.",
+      "stats": {
+        "attack": 2,
+        "defense": 3,
+        "speed": 5,
+        "utility": 5
+      },
+      "skills": [
+        {
+          "name": "Soft Light",
+          "type": "Active",
+          "desc": "Single-target heal with light shield on the most wounded ally."
+        },
+        {
+          "name": "Star Stage",
+          "type": "Ultimate",
+          "desc": "Party-wide heal + ATK and SPD buff for all allies for 10 seconds."
+        },
+        {
+          "name": "Light Encore",
+          "type": "Active",
+          "desc": "Removes one debuff from an ally and heals them for a moderate amount."
+        },
+        {
+          "name": "Fan Support",
+          "type": "Passive",
+          "desc": "Grants nearby allies small HP regen per second. Stacks with other healing sources."
+        }
+      ],
+      "bestWeapons": [
+        "MIYEON's Light Wand",
+        "Idol's Healing Staff"
+      ],
+      "artifacts": [
+        "Star Light Set",
+        "Performance Support Set"
+      ],
+      "statPriority": [
+        "HP%",
+        "SPD",
+        "Healing Bonus",
+        "Light DMG Bonus"
+      ],
+      "f2pBuild": "SPD and HP% focused. SR gear sufficient. Good light support option for F2P builds.",
+      "bestTeammates": [
+        "SOYEON",
+        "MINNIE",
+        "Cha Hae-In"
+      ],
+      "antiSynergy": [],
+      "description": "MIYEON provides solid light support value. Good pull during the collaboration for players needing a light healer outside Min Byung-Gu."
+    },
+    {
+      "name": "SHUHUA",
+      "element": "wind",
+      "class": "Mage",
+      "rarity": "SSR",
+      "tier": "A",
+      "trend": "stable",
+      "pullValue": "Situational",
+      "role": "Wind Mage DPS",
+      "playstyle": "Wind mage from the G(I)-DLE collab with good AoE performance-themed skills. Moderate DPS ceiling with crowd control. A niche pick for wind teams needing a mage role.",
+      "stats": {
+        "attack": 3,
+        "defense": 2,
+        "speed": 3,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Wind Performance",
+          "type": "Active",
+          "desc": "Wind projectile burst hitting all enemies in a forward arc."
+        },
+        {
+          "name": "Flower Shower",
+          "type": "Ultimate",
+          "desc": "Wide AoE wind burst raining down on all enemies. Applies SPD reduction to all hit."
+        },
+        {
+          "name": "Gust Note",
+          "type": "Active",
+          "desc": "Single wind bolt with high crit rate bonus — best damage per cast in her kit."
+        },
+        {
+          "name": "Light Breeze",
+          "type": "Passive",
+          "desc": "Every 4th skill cast fires a bonus wind attack. Consistent supplemental damage."
+        }
+      ],
+      "bestWeapons": [
+        "SHUHUA's Wind Staff",
+        "Breeze Wand"
+      ],
+      "artifacts": [
+        "Wind Performance Set",
+        "Gust Mage Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Wind DMG Bonus",
+        "CRIT Rate",
+        "CRIT DMG"
+      ],
+      "f2pBuild": "Mainly valuable if running a full wind team without a mage slot filled.",
+      "bestTeammates": [
+        "SOYEON",
+        "Lennart Niermann",
+        "Lee Joohee"
+      ],
+      "antiSynergy": [],
+      "description": "SHUHUA fills the wind mage role that has limited dedicated options. Situational pull for wind team builders during collaboration events."
+    },
+    {
+      "name": "YUQI",
+      "element": "fire",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "S",
+      "trend": "stable",
+      "pullValue": "Good",
+      "role": "Fire DPS / High Energy Bruiser",
+      "playstyle": "Energetic fire fighter from the G(I)-DLE collab with aggressive high-speed combos. Strong personal DPS and a fun, fast playstyle. Good alternative fire DPS for players who lack Liu Zhigang.",
+      "stats": {
+        "attack": 4,
+        "defense": 2,
+        "speed": 5,
+        "utility": 2
+      },
+      "skills": [
+        {
+          "name": "Fire Show",
+          "type": "Active",
+          "desc": "Rapid fire-enhanced punch and kick combo. Very fast animation with high hit count."
+        },
+        {
+          "name": "Blaze Rush",
+          "type": "Ultimate",
+          "desc": "Dashes through all enemies in a line dealing high fire damage and applying ignite."
+        },
+        {
+          "name": "Spark Step",
+          "type": "Active",
+          "desc": "Fire-dash repositioning skill. Deals fire burst on landing."
+        },
+        {
+          "name": "Burning Spirit",
+          "type": "Passive",
+          "desc": "ATK increases by 1% per currently ignited enemy, up to 10 stacks."
+        }
+      ],
+      "bestWeapons": [
+        "YUQI's Flame Gloves",
+        "Tiger's Fire Fist"
+      ],
+      "artifacts": [
+        "Burning Spirit Set",
+        "Fire Rush Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Fire DMG Bonus",
+        "SPD",
+        "CRIT Rate"
+      ],
+      "f2pBuild": "Good collab unit for F2P fire teams. SR fire weapon works. SPD substats boost her fast-combo playstyle.",
+      "bestTeammates": [
+        "Choi Jong-In",
+        "Tawata Kanae",
+        "SOYEON"
+      ],
+      "antiSynergy": [],
+      "description": "YUQI is a solid fire DPS with one of the game's fastest playstyles. Good pull for fire teams or players wanting a high-speed fighter."
+    },
+    {
+      "name": "Stark",
+      "element": "light",
+      "class": "Fighter",
+      "rarity": "SSR",
+      "tier": "S",
+      "trend": "stable",
+      "pullValue": "Good",
+      "role": "Light Bruiser / Counter DPS",
+      "playstyle": "Powerful light fighter with a unique counter-attack specialization. Punishes aggressive boss attack patterns by dealing amplified damage on successful parries. Rewards precise timing.",
+      "stats": {
+        "attack": 4,
+        "defense": 3,
+        "speed": 4,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Radiant Strike",
+          "type": "Active",
+          "desc": "Powerful light sword strike. Deals bonus damage if used immediately after a parry."
+        },
+        {
+          "name": "Stark's Authority",
+          "type": "Ultimate",
+          "desc": "Massive light explosion centered on self. Grants brief invincibility on cast."
+        },
+        {
+          "name": "Perfect Guard",
+          "type": "Active",
+          "desc": "Active parry frame — if timed correctly, deals light counter-damage and resets Radiant Strike cooldown."
+        },
+        {
+          "name": "Counter's Resolve",
+          "type": "Passive",
+          "desc": "Successful parries increase ATK for 8 seconds, stacking up to 3 times."
+        }
+      ],
+      "bestWeapons": [
+        "Stark's Sword",
+        "Light Counter's Blade"
+      ],
+      "artifacts": [
+        "Counter Resolve Set",
+        "Light Guardian Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Light DMG Bonus",
+        "DEF%",
+        "CRIT DMG"
+      ],
+      "f2pBuild": "DEF% substats help his counter passive trigger more reliably. SR gear fully functional.",
+      "bestTeammates": [
+        "Cha Hae-In",
+        "Min Byung-Gu",
+        "Thomas Andre"
+      ],
+      "antiSynergy": [],
+      "description": "Solid light fighter specializing in counter mechanics. Good pull for players who enjoy reactive, timing-based gameplay in a light team."
+    },
+    {
+      "name": "Anna Ruiz",
+      "element": "water",
+      "class": "Support",
+      "rarity": "SR",
+      "tier": "B",
+      "trend": "stable",
+      "pullValue": "Skip",
+      "role": "Healer",
+      "playstyle": "Basic water healer available from early game. Provides foundational healing until SSR supports are obtained. Straightforward skill set with no utility beyond heals.",
+      "stats": {
+        "attack": 1,
+        "defense": 3,
+        "speed": 3,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Water Mend",
+          "type": "Active",
+          "desc": "Single target heal. Core early-game healing skill."
+        },
+        {
+          "name": "Healing Tide",
+          "type": "Ultimate",
+          "desc": "Small AoE party heal. Low output compared to SSR healers."
+        },
+        {
+          "name": "Aqua Shield",
+          "type": "Active",
+          "desc": "Minor damage barrier on one ally."
+        },
+        {
+          "name": "Steady Flow",
+          "type": "Passive",
+          "desc": "Provides tiny passive HP regen to all allies."
+        }
+      ],
+      "bestWeapons": [
+        "Basic Healing Staff",
+        "Water Wand"
+      ],
+      "artifacts": [
+        "Healer's Touch Set",
+        "Basic Support Set"
+      ],
+      "statPriority": [
+        "HP%",
+        "Healing Bonus",
+        "SPD",
+        "DEF%"
+      ],
+      "f2pBuild": "Early game only — replace with Alicia or Meilin Fisher as soon as possible.",
+      "bestTeammates": [
+        "Any early-game DPS"
+      ],
+      "antiSynergy": [
+        "Outclassed by all SSR healers — do not invest past early game"
+      ],
+      "description": "Starting healer. Acceptable for early progression, quickly replaced by SSR supports."
+    },
+    {
+      "name": "Kim Chul",
+      "element": "earth",
+      "class": "Fighter",
+      "rarity": "SR",
+      "tier": "B",
+      "trend": "stable",
+      "pullValue": "Skip",
+      "role": "Earth DPS",
+      "playstyle": "Basic earth fighter available early. Simple rotation, no team utility. Good for clearing early gates when earth advantage applies.",
+      "stats": {
+        "attack": 3,
+        "defense": 2,
+        "speed": 2,
+        "utility": 1
+      },
+      "skills": [
+        {
+          "name": "Rock Punch",
+          "type": "Active",
+          "desc": "Basic earth melee strike. Core early DPS."
+        },
+        {
+          "name": "Earth Crash",
+          "type": "Ultimate",
+          "desc": "Ground slam dealing AoE earth damage."
+        },
+        {
+          "name": "Stone Rush",
+          "type": "Active",
+          "desc": "Earth-powered tackle dealing moderate damage."
+        },
+        {
+          "name": "Tough Body",
+          "type": "Passive",
+          "desc": "Minor incoming damage reduction."
+        }
+      ],
+      "bestWeapons": [
+        "Iron Fist",
+        "Earth Fighter's Gauntlet"
+      ],
+      "artifacts": [
+        "Fighter's Basic Set",
+        "Earth ATK Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Earth DMG Bonus",
+        "CRIT Rate",
+        "DEF%"
+      ],
+      "f2pBuild": "Early placeholder for earth DPS. Replace with Baek Yoonho or Silver Mane Baek Yoonho.",
+      "bestTeammates": [
+        "Any early-game support"
+      ],
+      "antiSynergy": [
+        "Outclassed by SSR earth units at midgame"
+      ],
+      "description": "Early-game earth DPS. Usable in early gates; retire at midgame."
+    },
+    {
+      "name": "Jo Kyuhwan",
+      "element": "dark",
+      "class": "Fighter",
+      "rarity": "SR",
+      "tier": "B",
+      "trend": "stable",
+      "pullValue": "Skip",
+      "role": "Dark DPS",
+      "playstyle": "Early dark fighter with a simple kit. Helps newer accounts begin building dark team synergy before SSR dark units are obtained.",
+      "stats": {
+        "attack": 3,
+        "defense": 2,
+        "speed": 3,
+        "utility": 1
+      },
+      "skills": [
+        {
+          "name": "Dark Strike",
+          "type": "Active",
+          "desc": "Basic dark melee combo. Primary damage skill."
+        },
+        {
+          "name": "Shadow Burst",
+          "type": "Ultimate",
+          "desc": "AoE dark explosion centered on self."
+        },
+        {
+          "name": "Grim Step",
+          "type": "Active",
+          "desc": "Short dark-dash with follow-up strike."
+        },
+        {
+          "name": "Dark Focus",
+          "type": "Passive",
+          "desc": "Minor CRIT Rate increase."
+        }
+      ],
+      "bestWeapons": [
+        "Basic Dark Blade",
+        "Shadow Sword"
+      ],
+      "artifacts": [
+        "Dark Fighter Set",
+        "Early ATK Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Dark DMG Bonus",
+        "CRIT Rate",
+        "CRIT DMG"
+      ],
+      "f2pBuild": "Use early game until SSR dark DPS are available.",
+      "bestTeammates": [
+        "Any early healer"
+      ],
+      "antiSynergy": [
+        "Completely outclassed by SSR dark units"
+      ],
+      "description": "Starter dark fighter. Functional for early gates and quests; retire at midgame."
+    },
+    {
+      "name": "Kang Taeshik",
+      "element": "wind",
+      "class": "Fighter",
+      "rarity": "SR",
+      "tier": "B",
+      "trend": "stable",
+      "pullValue": "Skip",
+      "role": "Wind DPS",
+      "playstyle": "Early wind fighter with basic combat mechanics. Functions as a wind placeholder before Woo Jinchul, Lennart Niermann, or Amamiya Mirei are obtained.",
+      "stats": {
+        "attack": 3,
+        "defense": 2,
+        "speed": 3,
+        "utility": 1
+      },
+      "skills": [
+        {
+          "name": "Wind Strike",
+          "type": "Active",
+          "desc": "Fast wind-element melee combo. Early primary damage source."
+        },
+        {
+          "name": "Gale Burst",
+          "type": "Ultimate",
+          "desc": "Short-range AoE wind burst."
+        },
+        {
+          "name": "Swift Cut",
+          "type": "Active",
+          "desc": "Quick single wind strike with moderate damage."
+        },
+        {
+          "name": "Wind Sense",
+          "type": "Passive",
+          "desc": "Minor evasion bonus."
+        }
+      ],
+      "bestWeapons": [
+        "Wind Blade",
+        "Basic Wind Sword"
+      ],
+      "artifacts": [
+        "Wind Fighter Set",
+        "Early ATK Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Wind DMG Bonus",
+        "SPD",
+        "CRIT Rate"
+      ],
+      "f2pBuild": "Early wind placeholder. Replace with SSR wind hunters as soon as possible.",
+      "bestTeammates": [
+        "Any early support"
+      ],
+      "antiSynergy": [
+        "Outclassed heavily at midgame"
+      ],
+      "description": "Early wind DPS. Use until SSR wind units are acquired."
+    },
+    {
+      "name": "Nam Chae-Young",
+      "element": "light",
+      "class": "Support",
+      "rarity": "SR",
+      "tier": "B",
+      "trend": "stable",
+      "pullValue": "Skip",
+      "role": "Early Support",
+      "playstyle": "Basic light support available from the start. Provides minor ATK buffs and healing. Quickly outclassed but helpful for stabilizing early teams.",
+      "stats": {
+        "attack": 1,
+        "defense": 3,
+        "speed": 3,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Light Heal",
+          "type": "Active",
+          "desc": "Minor single-target heal."
+        },
+        {
+          "name": "Blessed Light",
+          "type": "Ultimate",
+          "desc": "Small party ATK buff and minor party heal."
+        },
+        {
+          "name": "Guiding Hand",
+          "type": "Active",
+          "desc": "Weak damage barrier on one ally."
+        },
+        {
+          "name": "Gentle Glow",
+          "type": "Passive",
+          "desc": "Minor HP regen for all allies."
+        }
+      ],
+      "bestWeapons": [
+        "Healer's Light Staff",
+        "Support Wand"
+      ],
+      "artifacts": [
+        "Light Support Set",
+        "Basic Healer Set"
+      ],
+      "statPriority": [
+        "HP%",
+        "Healing Bonus",
+        "SPD",
+        "DEF%"
+      ],
+      "f2pBuild": "Replace with Min Byung-Gu, Meri Laine, or Alicia at the earliest opportunity.",
+      "bestTeammates": [
+        "Any early DPS"
+      ],
+      "antiSynergy": [
+        "Outclassed by all SSR supports in every metric"
+      ],
+      "description": "Early light support. Use for account stability in the opening hours — do not invest further."
+    },
+    {
+      "name": "Park Beom-Shik",
+      "element": "fire",
+      "class": "Fighter",
+      "rarity": "SR",
+      "tier": "B",
+      "trend": "stable",
+      "pullValue": "Skip",
+      "role": "Fire DPS",
+      "playstyle": "Basic fire fighter for early game. Simple combo-based damage with no team utility. Replaced quickly by Liu Zhigang or Antoine Martinez.",
+      "stats": {
+        "attack": 3,
+        "defense": 2,
+        "speed": 2,
+        "utility": 1
+      },
+      "skills": [
+        {
+          "name": "Flame Punch",
+          "type": "Active",
+          "desc": "Basic fire-enhanced punch combo."
+        },
+        {
+          "name": "Fire Rush",
+          "type": "Ultimate",
+          "desc": "Short-range fire burst dealing AoE damage."
+        },
+        {
+          "name": "Ember Fist",
+          "type": "Active",
+          "desc": "Single fire punch with ignite chance."
+        },
+        {
+          "name": "Hot Blooded",
+          "type": "Passive",
+          "desc": "Minor ATK buff after taking damage."
+        }
+      ],
+      "bestWeapons": [
+        "Basic Fire Gauntlet",
+        "Ember Fist"
+      ],
+      "artifacts": [
+        "Fire ATK Set",
+        "Basic Fighter Set"
+      ],
+      "statPriority": [
+        "ATK%",
+        "Fire DMG Bonus",
+        "CRIT Rate",
+        "HP%"
+      ],
+      "f2pBuild": "Early fire DPS placeholder. Replace with SSR fire hunters.",
+      "bestTeammates": [
+        "Any early support"
+      ],
+      "antiSynergy": [
+        "Outclassed by all SSR fire hunters"
+      ],
+      "description": "Early fire fighter. Functional through early gates; retire at midgame."
+    },
+    {
+      "name": "Song Chiyul",
+      "element": "earth",
+      "class": "Tank",
+      "rarity": "SR",
+      "tier": "B",
+      "trend": "stable",
+      "pullValue": "Skip",
+      "role": "Tank",
+      "playstyle": "Early game earth tank providing basic taunt and damage absorption. Limited by SR rarity in harder content but provides survivability for early-account teams.",
+      "stats": {
+        "attack": 1,
+        "defense": 4,
+        "speed": 1,
+        "utility": 2
+      },
+      "skills": [
+        {
+          "name": "Earth Guard",
+          "type": "Active",
+          "desc": "Taunts nearby enemies + brief DEF boost."
+        },
+        {
+          "name": "Stone Wall",
+          "type": "Ultimate",
+          "desc": "Creates a temporary earth barrier protecting all allies briefly."
+        },
+        {
+          "name": "Ground Slam",
+          "type": "Active",
+          "desc": "Basic earth attack with knockback."
+        },
+        {
+          "name": "Rock Solid",
+          "type": "Passive",
+          "desc": "Minor constant damage reduction."
+        }
+      ],
+      "bestWeapons": [
+        "Basic Shield",
+        "Earth Shield"
+      ],
+      "artifacts": [
+        "Tank's Basics Set",
+        "Earth Defense Set"
+      ],
+      "statPriority": [
+        "DEF%",
+        "HP%",
+        "Damage Reduction",
+        "Block Rate"
+      ],
+      "f2pBuild": "Replace with Thomas Andre or Sian Halat as priority pulls.",
+      "bestTeammates": [
+        "Any early DPS"
+      ],
+      "antiSynergy": [
+        "Significantly outclassed by SSR tanks"
+      ],
+      "description": "Early tank. Acceptable for opening content — direct pull resources toward SSR tanks."
+    },
+    {
+      "name": "Yoo Jinho",
+      "element": "light",
+      "class": "Support",
+      "rarity": "SR",
+      "tier": "B",
+      "trend": "stable",
+      "pullValue": "Skip",
+      "role": "Buffer / Morale Support",
+      "playstyle": "Jin-Woo's guild vice-master. Light support focused on party ATK buffs over healing. Has the highest buff-to-heal ratio among SR supports, making him slightly more useful in DPS-focused early teams.",
+      "stats": {
+        "attack": 2,
+        "defense": 2,
+        "speed": 4,
+        "utility": 3
+      },
+      "skills": [
+        {
+          "name": "Fighting Spirit",
+          "type": "Active",
+          "desc": "Buffs one ally's ATK for 8 seconds. Best SR support skill."
+        },
+        {
+          "name": "Guild Rally",
+          "type": "Ultimate",
+          "desc": "Party-wide ATK buff. Short duration but notable for an SR unit."
+        },
+        {
+          "name": "Light Assist",
+          "type": "Active",
+          "desc": "Minor heal on one ally."
+        },
+        {
+          "name": "Vice Master's Will",
+          "type": "Passive",
+          "desc": "ATK buffs he applies last 2 seconds longer. Stacks with other buff sources."
+        }
+      ],
+      "bestWeapons": [
+        "Jinho's Support Wand",
+        "Guild Staff"
+      ],
+      "artifacts": [
+        "Guild Support Set",
+        "Light ATK Set"
+      ],
+      "statPriority": [
+        "SPD",
+        "HP%",
+        "Healing Bonus",
+        "DEF%"
+      ],
+      "f2pBuild": "Best SR support for early DPS teams. Replace with SSR supports for midgame onward.",
+      "bestTeammates": [
+        "Sung Jin-Woo",
+        "Any early DPS unit"
+      ],
+      "antiSynergy": [
+        "Outclassed by all SSR supports"
+      ],
+      "description": "Best SR support unit. Jinho's ATK-focused buffs make him slightly ahead of other SR supporters. Use until SSR supports are obtained."
+    },
+    {
+      "name": "Choi Jong-In, The Ultimate Hunter",
+      "element": "fire",
+      "class": "Mage",
+      "rarity": "SSR",
+      "tier": "S+",
+      "trend": "stable",
+      "pullValue": "Good",
+      "role": "Main DPS, Sub DPS, Support",
+      "playstyle": "Choi Jong-In is a Fire Mage specializing in dealing high burst and damage-over-time with his fire magic. His skillset is designed to maximize damage output in a short amount of time, with all his skills dealing AoE damage. He can also apply Defense Decrease and Burn debuffs to enemies.",
+      "stats": {
+        "attack": 5,
+        "defense": 2,
+        "speed": 3,
+        "utility": 4
+      },
+      "skills": [
+        {
+          "name": "Rain of Flames",
+          "type": "Active",
+          "desc": "Deals Fire elemental damage and inflicts the Airborne effect on hit."
+        },
+        {
+          "name": "Flame Spear",
+          "type": "Active",
+          "desc": "Deals Fire elemental damage and inflicts the Airborne effect on hit."
+        },
+        {
+          "name": "Fire Barrage",
+          "type": "Active",
+          "desc": "A support skill that contributes to damage."
+        },
+        {
+          "name": "Celestial Fire Dragon",
+          "type": "Active",
+          "desc": "A Quick Time Event (QTE) skill."
+        },
+        {
+          "name": "End of Days",
+          "type": "Ultimate",
+          "desc": "His powerful ultimate skill, which can be further enhanced by specific artifacts."
+        },
+        {
+          "name": "Basic Attack",
+          "type": "Active",
+          "desc": "His core and normal attacks (Blast and Spark), which contribute to his overall damage output."
+        }
+      ],
+      "bestWeapons": [
+        "Equivalent Exchange",
+        "Steel Longsword",
+        "Ancient Grimoire"
+      ],
+      "artifacts": [
+        "One-hit Kill",
+        "Armed",
+        "Executioner",
+        "Concentration of Power",
+        "Berserker",
+        "Destroyer"
+      ],
+      "statPriority": [
+        "Attack",
+        "Defense Penetration",
+        "Damage Dealing Ability"
+      ],
+      "f2pBuild": "For F2P players, the SR-rarity Steel Longsword or Ancient Grimoire are good weapon choices, boosting elemental weakness damage or Power Gauge Acquisition Rate. Pair these with accessible artifact sets focused on increasing Attack and Ultimate Skill damage.",
+      "bestTeammates": [],
+      "antiSynergy": [
+        "Critical Hit Chance",
+        "Critical Hit Damage"
+      ],
+      "description": "Choi Jong-In is a top-tier SSR Fire Mage and the Guild Master of the Hunters Guild, renowned as 'The Ultimate Hunter.' He excels as a primary damage dealer with potent AoE fire magic, capable of delivering both burst and sustained damage while debuffing enemies with Defense Decrease and Burn effects.",
+      "auto_generated": true,
+      "verified": false,
+      "source": "gemini_grounded",
+      "discovered_at": "2026-09-10T07:31:45.353428+00:00"
+    },
+    {
+      "name": "Baek Yoonho, the hunter with a beast transformation",
+      "element": "light",
+      "class": "Tank",
+      "rarity": "SSR",
+      "tier": "A",
+      "trend": "stable",
+      "pullValue": "Situational",
+      "role": "Tank, Breaker",
+      "playstyle": "Baek Yoonho is a Light elemental Tank who excels at dealing significant Break damage with all of his attacks. He can also decrease enemy defenses, making him a valuable asset for challenging encounters, though he may be difficult for new players to master.",
+      "stats": {
+        "attack": 4,
+        "defense": 5,
+        "speed": 3,
+        "utility": 4
+      },
+      "skills": [
+        {
+          "name": "White Flame Strike",
+          "type": "Basic Attack",
+          "desc": "A basic attack that contributes to his overall Break damage output."
+        },
+        {
+          "name": "White Flame Pummel",
+          "type": "Core Attack",
+          "desc": "A core attack delivering Break damage."
+        },
+        {
+          "name": "Ferocious Spirit",
+          "type": "Active",
+          "desc": "A basic skill that contributes to his Break damage."
+        },
+        {
+          "name": "White Flame Gale Kick",
+          "type": "Active",
+          "desc": "A basic skill that deals Break damage."
+        },
+        {
+          "name": "White Flame Storm Kick",
+          "type": "Support",
+          "desc": "A support skill that deals Break damage and can decrease enemy defenses."
+        },
+        {
+          "name": "Truth: White Flame Strike",
+          "type": "Ultimate",
+          "desc": "His ultimate skill, delivering Break damage and capable of decreasing enemy defenses."
+        },
+        {
+          "name": "Damnation",
+          "type": "QTE",
+          "desc": "A Quick Time Event skill contributing to Break damage."
+        }
+      ],
+      "bestWeapons": [
+        "Weapons that boost defense, elemental damage, and Critical Hit Rate."
+      ],
+      "artifacts": [
+        "Artifacts that boost defense, elemental damage, and Critical Hit Rate."
+      ],
+      "statPriority": [
+        "Defense",
+        "Light Elemental Damage",
+        "Critical Hit Rate"
+      ],
+      "f2pBuild": "Focus on artifacts and weapons that provide a balance of defense and Light elemental damage, prioritizing Break effect substats.",
+      "bestTeammates": [
+        "Hunters who can capitalize on reduced enemy defenses or provide additional damage during Break windows."
+      ],
+      "antiSynergy": [],
+      "description": "Baek Yoonho is an SSR Light element Tank hunter known for his beast transformation and high Break damage potential. He is an S-Rank Hunter specializing in transformation magic and can significantly reduce enemy defenses, making him a strong asset for controlling powerful foes.",
+      "auto_generated": true,
+      "verified": false,
+      "source": "gemini_grounded",
+      "discovered_at": "2026-09-10T07:32:09.070717+00:00"
+    },
+    {
+      "name": "Lee Joohee, Pilgrim of the Labyrinth",
+      "element": "light",
+      "class": "Buster",
+      "rarity": "SSR",
+      "tier": "S+",
+      "trend": "stable",
+      "pullValue": "Must Pull",
+      "role": "Main DPS",
+      "playstyle": "Lee Joohee, Pilgrim of the Labyrinth, is a frontline Light-element Buster whose combat revolves around prisms. Her gameplay involves accumulating additional attacks through Basic Skills and Core Attacks, building momentum to unleash powerful Buster Skills for high-impact burst damage. She is designed for players who enjoy completing offensive sequences to maximize damage.",
+      "stats": {
+        "attack": 5,
+        "defense": 3,
+        "speed": 3,
+        "utility": 2
+      },
+      "skills": [
+        {
+          "name": "Reflecting Chain",
+          "type": "Active",
+          "desc": "Reflects a damaging beam through a prism to attack enemies."
+        },
+        {
+          "name": "Lucent Release",
+          "type": "Active",
+          "desc": "Strikes the area ahead with concentrated light."
+        },
+        {
+          "name": "Prism Blast",
+          "type": "Ultimate",
+          "desc": "Focuses light from multiple magical prisms onto a single point, triggering a powerful explosion."
+        }
+      ],
+      "bestWeapons": [
+        "Guide of the Blessed Light"
+      ],
+      "artifacts": [
+        "Crocodile (Core) (prioritize Attack %, Defense Penetration, Crit Damage)",
+        "Artifacts that grant Attack % for Basic Skill use"
+      ],
+      "statPriority": [
+        "Attack",
+        "Critical Rate",
+        "Critical Damage",
+        "Defense Penetration"
+      ],
+      "f2pBuild": "Focus on maximizing Attack, Critical Rate, and Critical Damage through easily accessible artifact sets and weapon upgrades. Prioritize the Crocodile Core for damage amplification.",
+      "bestTeammates": [
+        "Laura Walker",
+        "Shimizu Akari"
+      ],
+      "antiSynergy": [],
+      "description": "Lee Joohee, Pilgrim of the Labyrinth is an SSR Light-element Buster, an alternate version of Lee Joohee who fights on the front lines, determined to protect others. She excels at burst damage through prism-powered light magic, building up attacks to unleash powerful ultimate skills.",
+      "auto_generated": true,
+      "verified": false,
+      "source": "gemini_grounded",
+      "discovered_at": "2026-09-10T07:32:29.765456+00:00"
+    },
+    {
+      "name": "Jung Yerim",
+      "element": "fire",
+      "class": "Supporter",
+      "rarity": "SSR",
+      "tier": "S+",
+      "trend": "stable",
+      "pullValue": "Must Pull",
+      "role": "Support",
+      "playstyle": "Jung Yerim is an HP-scaling Fire-element Supporter designed to protect allies and strengthen Fire teams. Her kit combines healing, shields, and offensive buffs, including increasing Fire Overload damage, Burst damage, Attack Power, and Ultimate Move damage, turning survivability into a platform for more aggressive rotations.",
+      "stats": {
+        "attack": 2,
+        "defense": 4,
+        "speed": 3,
+        "utility": 5
+      },
+      "skills": [
+        {
+          "name": "Warm Resonance",
+          "type": "Ultimate",
+          "desc": "Her highest damaging skill, used in every rotation."
+        },
+        {
+          "name": "Sacred Shield",
+          "type": "Active",
+          "desc": "Creates a large defensive barrier and is used within every rotation."
+        },
+        {
+          "name": "Orbiting Halo",
+          "type": "Active",
+          "desc": "Her core attack, activated by her basic skill two."
+        }
+      ],
+      "bestWeapons": [],
+      "artifacts": [
+        "Noble Will/Flesh (8-set)"
+      ],
+      "statPriority": [
+        "HP%",
+        "HP",
+        "Crit Rate",
+        "Crit Damage",
+        "Damage Increase",
+        "Defense Penetration"
+      ],
+      "f2pBuild": "Equip the Noble Will/Flesh artifact set with HP% as the main stat on all pieces (helmet, boots, necklace, ring). Prioritize additional HP, Crit Rate, and Crit Damage as substats.",
+      "bestTeammates": [
+        "Liu Zhigang",
+        "Christopher Reed"
+      ],
+      "antiSynergy": [],
+      "description": "Jung Yerim is an SSR Fire-element Supporter who excels at protecting allies and significantly boosting the damage of Fire-element teams, particularly Liu Zhigang, through healing, shields, and various offensive buffs. Her entire kit scales with HP, making her a high-priority investment for dedicated Fire compositions.",
+      "auto_generated": true,
+      "verified": false,
+      "source": "gemini_grounded",
+      "discovered_at": "2026-09-10T07:32:50.276292+00:00"
+    }
+  ],
+  "auto_added": [
+    "Choi Jong-In, The Ultimate Hunter",
+    "Baek Yoonho, the hunter with a beast transformation",
+    "Lee Joohee, Pilgrim of the Labyrinth",
+    "Jung Yerim"
+  ],
+  "last_checked": "2026-09-10T07:32:50.276292+00:00"
+}
