@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import CoachingModeSelector from '../components/CoachingModeSelector';
 import GameModeSelector from '../components/GameModeSelector';
-import RosterInput from '../components/RosterInput';
 import StrategyOutput from '../components/StrategyOutput';
 import SidebarHero from '../components/SidebarHero';
 import Icon from '../components/Icon';
@@ -29,11 +28,7 @@ export default function AnalyzePage({
   gameMode, setGameMode, boss, setBoss,
   coachingMode, setCoachingMode,
   spendingLevel, setSpendingLevel,
-  progressionStage, setProgressionStage,
   question, setQuestion,
-  hunters, setHunters,
-  battlePower, setBattlePower,
-  jinwooPower, setJinwooPower,
   strategy, loading, error, streamChars, statusMessage,
   handleAnalyze, handleFeedback,
   onNavigate,
@@ -69,17 +64,10 @@ export default function AnalyzePage({
           boss={boss} setBoss={setBoss}
         />
 
-        <RosterInput
-          hunters={hunters}           setHunters={setHunters}
-          battlePower={battlePower}   setBattlePower={setBattlePower}
-          jinwooPower={jinwooPower}   setJinwooPower={setJinwooPower}
-          progressionStage={progressionStage} setProgressionStage={setProgressionStage}
-        />
-
         <motion.button
           className="analyze-btn analyze-theme"
           onClick={handleAnalyze}
-          disabled={loading || hunters.length === 0}
+          disabled={loading}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
@@ -143,9 +131,9 @@ export default function AnalyzePage({
               <div className="empty-glyph" style={{ color: '#6fa3f0' }}><Icon name="sword" size={38} /></div>
               <div className="empty-title">Ready to Analyze</div>
               <div className="empty-desc">
-                Add your hunters, pick a coaching focus, then hit{' '}
-                <strong style={{ color: '#6fa3f0' }}>Analyze</strong> for
-                personalized strategy built around your exact roster.
+                Pick a game mode and a coaching focus, then hit{' '}
+                <strong style={{ color: '#6fa3f0' }}>Analyze</strong> for a
+                personalized strategy.
               </div>
             </motion.div>
           )}
