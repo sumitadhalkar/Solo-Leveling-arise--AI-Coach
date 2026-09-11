@@ -133,11 +133,19 @@ def test_is_transient_detects_5xx_and_timeouts():
     assert pipeline._is_transient(Exception("Connection reset by peer"))
 
 
+def test_is_transient_detects_empty_provider_response():
+    """Regression test: a provider call that 'succeeds' but returns no text
+    (safety filter, empty candidate, quota edge case) must be retried like
+    any other transient failure, not treated as a permanent error."""
+    assert pipeline._is_transient(RuntimeError(pipeline._EMPTY_RESPONSE_MSG))
+
+
 def test_friendly_error_maps_known_causes():
     assert "heavy load" in pipeline._friendly_error("503 UNAVAILABLE")
     assert "daily AI request limit" in pipeline._friendly_error("429 RESOURCE_EXHAUSTED")
     assert "not configured correctly" in pipeline._friendly_error("401 unauthenticated")
     assert "too long" in pipeline._friendly_error("deadline exceeded")
+    assert "didn't return a usable response" in pipeline._friendly_error(pipeline._EMPTY_RESPONSE_MSG)
     assert pipeline._friendly_error("some totally unrecognized error")  # generic fallback, non-empty
 
 

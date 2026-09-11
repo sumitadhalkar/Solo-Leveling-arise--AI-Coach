@@ -91,6 +91,14 @@ def _is_rate_limit(e: Exception) -> bool:
     ))
 
 
+# Distinct marker for "the provider call technically succeeded but returned
+# no usable text" (safety filtering, an empty candidate, or a quota edge case
+# that doesn't raise a normal 429). Without this, that case would silently
+# produce a near-empty "parse_error" response instead of retrying/failing
+# over like any other transient failure — see _sync_generate/_sync_stream.
+_EMPTY_RESPONSE_MSG = "EMPTY_PROVIDER_RESPONSE: no text in provider response (safety filter, empty candidates, or a quota edge case)"
+
+
 def _is_transient(e: Exception) -> bool:
     """Server-side hiccups worth retrying: model overload, 5xx, timeouts.
 
@@ -103,12 +111,18 @@ def _is_transient(e: Exception) -> bool:
         "503", "unavailable", "overloaded", "high demand", "500", "internal error",
         "502", "504", "deadline", "timeout", "connection reset", "temporarily",
         "connection error", "connect timeout", "service unavailable",
+        "empty_provider_response",
     ))
 
 
 def _friendly_error(raw: str) -> str:
     """Turn a provider stack-trace string into something a player can act on."""
     low = raw.lower()
+    # Checked first: its own explanatory text mentions "quota", which would
+    # otherwise be caught by the quota/429 branch below with a misleading
+    # "daily limit reached" message when the real cause is unknown/mixed.
+    if "empty_provider_response" in low:
+        return "The AI didn't return a usable response (it may be rate-limited or overloaded). Please try again."
     if any(k in low for k in ("503", "unavailable", "overloaded", "high demand")):
         return "The AI model is under heavy load right now. Please try again in a moment."
     if any(k in low for k in ("429", "quota", "rate limit", "resource_exhausted")):
@@ -620,32 +634,39 @@ def _sync_generate(provider: str, client, model: str, prompt: str, use_search: b
     if provider == "gemini":
         tools = [types.Tool(google_search=types.GoogleSearch())] if use_search else None
         config = types.GenerateContentConfig(system_instruction=_SYSTEM_PROMPT, tools=tools)
-        # .text can legitimately be None (safety filtering, empty candidates,
-        # a quota response that still returns 200) — never let that propagate
-        # as a bare None into _extract_json, which would crash on .strip()
-        # with an unhelpful AttributeError that masks the real cause.
-        return client.models.generate_content(model=model, contents=prompt, config=config).text or ""
+        text = client.models.generate_content(model=model, contents=prompt, config=config).text
+    else:
+        # The configured OpenAI-compatible provider (NVIDIA by default) — plain
+        # chat completions, no search tool available from any provider here.
+        resp = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": _SYSTEM_PROMPT},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.4,
+        )
+        text = resp.choices[0].message.content
 
-    # The configured OpenAI-compatible provider (NVIDIA by default) — plain
-    # chat completions, no search tool available from any provider here.
-    resp = client.chat.completions.create(
-        model=model,
-        messages=[
-            {"role": "system", "content": _SYSTEM_PROMPT},
-            {"role": "user", "content": prompt},
-        ],
-        temperature=0.4,
-    )
-    return resp.choices[0].message.content or ""
+    # .text/.content can legitimately be None or empty (safety filtering, an
+    # empty candidate, a quota response that still returns 200 instead of
+    # raising) — treat that as a retryable failure like any other transient
+    # error rather than silently returning "" and reporting a confusing
+    # near-empty parse_error to the user as if generation had succeeded.
+    if not text:
+        raise RuntimeError(_EMPTY_RESPONSE_MSG)
+    return text
 
 
 def _sync_stream(provider: str, client, model, prompt, use_search, queue: asyncio.Queue, loop):
+    sent_any = False
     try:
         if provider == "gemini":
             tools = [types.Tool(google_search=types.GoogleSearch())] if use_search else None
             config = types.GenerateContentConfig(system_instruction=_SYSTEM_PROMPT, tools=tools)
             for chunk in client.models.generate_content_stream(model=model, contents=prompt, config=config):
                 if chunk.text:
+                    sent_any = True
                     loop.call_soon_threadsafe(queue.put_nowait, ("chunk", chunk.text))
         else:
             stream = client.chat.completions.create(
@@ -660,7 +681,13 @@ def _sync_stream(provider: str, client, model, prompt, use_search, queue: asynci
             for chunk in stream:
                 delta = chunk.choices[0].delta.content if chunk.choices else None
                 if delta:
+                    sent_any = True
                     loop.call_soon_threadsafe(queue.put_nowait, ("chunk", delta))
+        # A stream that completes with zero chunks (safety filtering, an empty
+        # candidate, a quota edge case) looks identical to success downstream
+        # otherwise — treat it as a retryable failure like _sync_generate does.
+        if not sent_any:
+            loop.call_soon_threadsafe(queue.put_nowait, ("error", _EMPTY_RESPONSE_MSG))
     except Exception as e:
         loop.call_soon_threadsafe(queue.put_nowait, ("error", str(e)))
     finally:
